@@ -1,7 +1,11 @@
 package com.example.todoapp.presentation.mainScreen
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +13,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,39 +28,117 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
 import com.example.todoapp.ui.theme.BlueBg
 import com.example.todoapp.ui.theme.BlueBgTwo
+import com.example.todoapp.ui.theme.PinkButton
 import com.example.todoapp.ui.theme.cyanText
+import kotlin.math.roundToInt
 
 @Composable
 fun MainTaskScreen() {
+
+    var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
+    var selectedNavigationItem by remember { mutableStateOf(NavigationItem.Menu) }
+
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current.density
+
+    val screenWidth = remember {
+        derivedStateOf { (configuration.screenWidthDp * density).roundToInt() }
+    }
+
+    val offsetValue by remember { derivedStateOf { (screenWidth.value / 3.5).dp } }
+
+    val animatedOffset by animateDpAsState(
+        targetValue = if (drawerState.isOpened()) offsetValue else 0.dp,
+        label = "Animated Offset"
+    )
+
+    val animatedScale by animateFloatAsState(
+        targetValue = if (drawerState.isOpened()) 0.9f else 1f,
+        label = "Animated Scale"
+    )
+
+    BackHandler(enabled = drawerState.isOpened()) {
+        drawerState = CustomDrawerState.Closed
+    }
+
     Box(
         modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
+            .statusBarsPadding()
+            .navigationBarsPadding()
             .fillMaxSize()
-            .background(Color.White)
+    ) {
+        CustomDrawer(
+            selectedNavigationItem = selectedNavigationItem,
+            onNavigationItemClick = {
+                selectedNavigationItem = it
+            },
+            onCloseClick = {
+                drawerState = CustomDrawerState.Closed
+            }
+        )
+
+        MainContent(modifier =
+        Modifier.offset(x = animatedOffset)
+            .scale(scale = animatedScale),drawerState, onDrawerState = {drawerState = it})
+    }
+
+}
+
+@Composable
+fun MainContent(
+    modifier: Modifier = Modifier,
+    drawerState: CustomDrawerState,
+    onDrawerState: (CustomDrawerState) -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color.Red)
+            .systemBarsPadding()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = BlueBg)
-                .systemBarsPadding()
+                .clickable(enabled = drawerState == CustomDrawerState.Opened){
+                    onDrawerState(CustomDrawerState.Closed)
+                }
+                .clip(RoundedCornerShape(24.dp))
         ) {
 
-            FirstIconRow()
+            FirstIconRow(drawerState, onDrawerState)
 
             Text(
                 "What's up, Juan!",
@@ -70,20 +157,25 @@ fun MainTaskScreen() {
             onClick = {},
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 16.dp)
+                .padding(end = 24.dp, bottom = 24.dp)
                 .size(64.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
+            colors = ButtonDefaults.buttonColors(containerColor = PinkButton)
         ) {
-            Text("+", fontSize = 32.sp,
+            Text(
+                "+", fontSize = 32.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Normal)
+                fontWeight = FontWeight.Normal
+            )
         }
     }
 }
 
 @Composable
-fun FirstIconRow() {
+fun FirstIconRow(
+    drawerState: CustomDrawerState,
+    onDrawerState: (CustomDrawerState) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,9 +184,18 @@ fun FirstIconRow() {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconFunc(
-            size = 28.dp, idImage = R.drawable.menu, iconDescription = "Menu icon"
-        )
+        IconButton(onClick = {
+            onDrawerState(drawerState.opposite())
+        }) {
+            Icon(
+                modifier = Modifier
+                    .size(22.dp)
+                    .padding(),
+                painter = painterResource(id = R.drawable.menu),
+                contentDescription = "Menu icon",
+                tint = Color.White
+            )
+        }
 
         Row(
             modifier = Modifier, verticalAlignment = Alignment.CenterVertically
@@ -142,6 +243,8 @@ fun CategoriesRow() {
 @Composable
 fun CategoriesItem() {
 
+    val progress = if (true) 5f / 30f else 0f
+
     Column(
         modifier = Modifier
             .clip(shape = RoundedCornerShape(14.dp))
@@ -150,7 +253,7 @@ fun CategoriesItem() {
     ) {
         Column(
             modifier = Modifier
-                .padding(18.dp)
+                .padding(24.dp)
         ) {
             Text(
                 text = "10 tasks",
@@ -159,11 +262,27 @@ fun CategoriesItem() {
             )
 
             Text(
+                modifier = Modifier.padding(bottom = 16.dp),
                 text = "Business",
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Medium
             )
+
+            // Barra de progreso
+            Box(
+                modifier = Modifier
+                    .height(4.dp)
+                    .width(170.dp)
+                    .background(Color.Gray, RoundedCornerShape(4.dp))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        .height(4.dp)
+                        .background(Color.Magenta, RoundedCornerShape(4.dp))
+                )
+            }
 
         }
     }
@@ -195,6 +314,9 @@ fun TasksColumn() {
 
 @Composable
 fun TasksItem() {
+
+    var checkValue by rememberSaveable { mutableStateOf(false) }
+
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier
@@ -211,8 +333,8 @@ fun TasksItem() {
                     .border(2.dp, Color.Magenta, RoundedCornerShape(16.dp))  // Borde redondeado
             ) {
                 Checkbox(
-                    checked = false,
-                    onCheckedChange = {},
+                    checked = checkValue,
+                    onCheckedChange = { checkValue = it },
                     colors = CheckboxDefaults.colors(
                         uncheckedColor = Color.Transparent, // Hace que la casilla desaparezca
                         checkmarkColor = Color.Magenta  // Color de la marca al estar activo
@@ -224,7 +346,12 @@ fun TasksItem() {
                 "Daily meeting with team",
                 color = Color.White,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 8.dp),
+                textDecoration = if (checkValue) {
+                    TextDecoration.LineThrough
+                } else {
+                    TextDecoration.None
+                }
             )
         }
     }
@@ -232,17 +359,24 @@ fun TasksItem() {
 
 
 @Composable
-fun IconFunc(idImage: Int, size: Dp, iconDescription: String) {
+fun IconFunc(
+    idImage: Int,
+    size: Dp,
+    iconDescription: String,
+) {
     Box(modifier = Modifier.padding(horizontal = 8.dp)) {
-        Icon(
-            modifier = Modifier
-                .size(size)
-                .padding(),
-            painter = painterResource(id = idImage),
-            contentDescription = iconDescription,
-            tint = Color.White,
+        IconButton(onClick = {
 
+        }) {
+            Icon(
+                modifier = Modifier
+                    .size(size)
+                    .padding(),
+                painter = painterResource(id = idImage),
+                contentDescription = iconDescription,
+                tint = Color.White
             )
-    }
+        }
 
+    }
 }
