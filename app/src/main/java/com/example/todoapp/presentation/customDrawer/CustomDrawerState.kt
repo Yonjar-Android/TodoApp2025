@@ -1,4 +1,4 @@
-package com.example.todoapp.presentation.mainScreen
+package com.example.todoapp.presentation.customDrawer
 
 enum class CustomDrawerState {
     Opened, Closed
@@ -9,6 +9,6 @@ fun CustomDrawerState.isOpened(): Boolean{
 }
 
 fun CustomDrawerState.opposite(): CustomDrawerState {
-    return if (this ==  CustomDrawerState.Opened) CustomDrawerState.Closed
+    return if (this == CustomDrawerState.Opened) CustomDrawerState.Closed
     else CustomDrawerState.Opened
 }

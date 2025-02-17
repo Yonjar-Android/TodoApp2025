@@ -28,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +54,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
+import com.example.todoapp.presentation.customDrawer.CustomDrawer
+import com.example.todoapp.presentation.customDrawer.CustomDrawerState
+import com.example.todoapp.presentation.customDrawer.isOpened
+import com.example.todoapp.presentation.customDrawer.opposite
 import com.example.todoapp.ui.theme.BlueBg
 import com.example.todoapp.ui.theme.BlueBgTwo
 import com.example.todoapp.ui.theme.PinkButton
