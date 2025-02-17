@@ -62,6 +62,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
+    // Gráficos
+    implementation (libs.compose.charts)
+
     // Room (Base de datos y persistencia de datos)
 
     implementation(libs.androidx.room.runtime)
