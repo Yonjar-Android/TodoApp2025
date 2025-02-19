@@ -23,16 +23,19 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +57,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
+import com.example.todoapp.data.models.CategoryModel
+import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.presentation.customDrawer.CustomDrawer
 import com.example.todoapp.presentation.customDrawer.CustomDrawerState
 import com.example.todoapp.presentation.customDrawer.isOpened
@@ -65,7 +70,15 @@ import com.example.todoapp.ui.theme.cyanText
 import kotlin.math.roundToInt
 
 @Composable
-fun MainTaskScreen() {
+fun MainTaskScreen(viewModel: MainScreenViewModel) {
+
+    val state by viewModel.state.collectAsState()
+
+    if (state.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = Color.Red)
+        }
+    }
 
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedNavigationItem by remember { mutableStateOf(NavigationItem.Menu) }
@@ -112,8 +125,14 @@ fun MainTaskScreen() {
         )
 
         MainContent(modifier =
-        Modifier.offset(x = animatedOffset)
-            .scale(scale = animatedScale),drawerState, onDrawerState = {drawerState = it})
+        Modifier
+            .offset(x = animatedOffset)
+            .scale(scale = animatedScale),
+            tasks = state.tasks,
+            categories = state.categories,
+            viewModel = viewModel,
+            drawerState,
+            onDrawerState = { drawerState = it })
     }
 
 }
@@ -121,6 +140,9 @@ fun MainTaskScreen() {
 @Composable
 fun MainContent(
     modifier: Modifier = Modifier,
+    tasks: List<TaskModel>,
+    categories: List<CategoryModel>,
+    viewModel: MainScreenViewModel,
     drawerState: CustomDrawerState,
     onDrawerState: (CustomDrawerState) -> Unit
 ) {
@@ -135,7 +157,7 @@ fun MainContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = BlueBg)
-                .clickable(enabled = drawerState == CustomDrawerState.Opened){
+                .clickable(enabled = drawerState == CustomDrawerState.Opened) {
                     onDrawerState(CustomDrawerState.Closed)
                 }
                 .clip(RoundedCornerShape(24.dp))
@@ -151,13 +173,24 @@ fun MainContent(
                 modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 8.dp)
             )
 
-            CategoriesRow()
+            CategoriesRow(categories)
 
-            TasksColumn()
+            Spacer(modifier = Modifier.size(24.dp))
+
+            TasksColumn(tasks)
         }
 
         Button(
-            onClick = {},
+            onClick = {
+
+                val task = TaskModel(
+                    title = "Tarea de prueba",
+                    createdDate = 0,
+                    completedDate = 0,
+                    categoryId = 1
+                )
+                viewModel.createTask(task)
+            },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 24.dp, bottom = 24.dp)
@@ -217,7 +250,7 @@ fun FirstIconRow(
 }
 
 @Composable
-fun CategoriesRow() {
+fun CategoriesRow(categories: List<CategoryModel>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -230,13 +263,15 @@ fun CategoriesRow() {
             fontWeight = FontWeight.Medium
         )
 
+        Spacer(modifier = Modifier.size(8.dp))
+
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         ) {
-            items(3) {
-                CategoriesItem()
+            items(categories) {
+                CategoriesItem(it)
                 Spacer(modifier = Modifier.size(12.dp))
             }
         }
@@ -244,7 +279,7 @@ fun CategoriesRow() {
 }
 
 @Composable
-fun CategoriesItem() {
+fun CategoriesItem(categoryModel: CategoryModel) {
 
     val progress = if (true) 5f / 30f else 0f
 
@@ -266,7 +301,7 @@ fun CategoriesItem() {
 
             Text(
                 modifier = Modifier.padding(bottom = 16.dp),
-                text = "Business",
+                text = categoryModel.title,
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Medium
@@ -292,7 +327,7 @@ fun CategoriesItem() {
 }
 
 @Composable
-fun TasksColumn() {
+fun TasksColumn(tasks: List<TaskModel>) {
     Column(modifier = Modifier) {
         Text(
             "TODAY'S TASKS",
@@ -302,13 +337,15 @@ fun TasksColumn() {
             modifier = Modifier.padding(start = 20.dp)
         )
 
+        Spacer(modifier = Modifier.size(8.dp))
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         ) {
-            items(5) {
-                TasksItem()
+            items(tasks) {
+                TasksItem(it)
                 Spacer(modifier = Modifier.size(12.dp))
             }
         }
@@ -316,9 +353,9 @@ fun TasksColumn() {
 }
 
 @Composable
-fun TasksItem() {
+fun TasksItem(taskItem: TaskModel) {
 
-    var checkValue by rememberSaveable { mutableStateOf(false) }
+    var checkValue by rememberSaveable { mutableStateOf(taskItem.completed) }
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
@@ -346,7 +383,7 @@ fun TasksItem() {
             }
 
             Text(
-                "Daily meeting with team",
+                taskItem.title,
                 color = Color.White,
                 fontSize = 18.sp,
                 modifier = Modifier.padding(start = 16.dp, end = 8.dp),

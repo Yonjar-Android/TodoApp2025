@@ -12,6 +12,6 @@ interface TaskDao {
     suspend fun createTask(task: TaskRoomModel)
 
     @Query("SELECT * FROM tasks")
-    fun getTasks(): List<TaskRoomModel>
+    suspend fun getTasks(): List<TaskRoomModel>
 
 }

@@ -11,5 +11,5 @@ interface CategoriesDao {
     suspend fun createCategory(category: CategoryRoomModel)
 
     @Query("SELECT * FROM categories")
-    fun getCategories(): List<CategoryRoomModel>
+    suspend fun getCategories(): List<CategoryRoomModel>
 }
