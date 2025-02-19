@@ -7,6 +7,7 @@ import com.example.todoapp.data.database.entities.TaskRoomModel
 import com.example.todoapp.data.mapper.CategoryMapper
 import com.example.todoapp.data.mapper.TaskMapper
 import com.example.todoapp.data.models.CategoryModel
+import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import javax.inject.Inject
 
@@ -15,11 +16,6 @@ class TaskRepository @Inject constructor(
     private val taskDao: TaskDao,
     private val categoryDao: CategoriesDao
 ) {
-    suspend fun createTask(task: TaskModel) {
-        val taskToCreate = TaskMapper.toTaskRoomModel(task)
-
-        taskDao.createTask(taskToCreate)
-    }
 
     suspend fun getTasks(): List<TaskModel> {
 
@@ -35,10 +31,20 @@ class TaskRepository @Inject constructor(
         return tasksGet
     }
 
-    suspend fun createCategory(category: CategoryModel) {
-        val categoryToCreate = CategoryMapper.toCategoryRoomModel(category)
+    suspend fun createTask(task: TaskModel) {
+        val taskToCreate = TaskMapper.toTaskRoomModel(task)
 
-        categoryDao.createCategory(categoryToCreate)
+        taskDao.createTask(taskToCreate)
+    }
+
+    suspend fun updateTask(task:TaskModel){
+        val taskUpdated = TaskMapper.toTaskRoomModel(task)
+        taskDao.updateTask(taskUpdated)
+    }
+
+    suspend fun deleteTask(task: TaskModel){
+        val taskToDelete = TaskMapper.toTaskRoomModel(task)
+        taskDao.deleteTask(taskToDelete)
     }
 
     suspend fun getCategories(): List<CategoryModel> {
@@ -54,4 +60,27 @@ class TaskRepository @Inject constructor(
         }
         return categoriesGet
     }
+
+    suspend fun getCategoriesCountTask(): List<CategoryWithTaskCount> {
+        val categories:List<CategoryWithTaskCount> = categoryDao.getTaskCountByCategory()
+
+        return categories
+    }
+
+    suspend fun createCategory(category: CategoryModel) {
+        val categoryToCreate = CategoryMapper.toCategoryRoomModel(category)
+
+        categoryDao.createCategory(categoryToCreate)
+    }
+
+    suspend fun updateCategory(category:CategoryModel){
+        val categoryUpdated = CategoryMapper.toCategoryRoomModel(category)
+        categoryDao.updateCategory(categoryUpdated)
+    }
+
+    suspend fun deleteCategory(category: CategoryModel){
+        val categoryToDelete = CategoryMapper.toCategoryRoomModel(category)
+        categoryDao.deleteCategory(categoryToDelete)
+    }
+
 }

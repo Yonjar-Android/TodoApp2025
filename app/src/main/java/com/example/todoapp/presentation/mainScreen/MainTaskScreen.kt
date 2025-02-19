@@ -1,5 +1,6 @@
 package com.example.todoapp.presentation.mainScreen
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -48,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
 import com.example.todoapp.data.models.CategoryModel
+import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.presentation.customDrawer.CustomDrawer
 import com.example.todoapp.presentation.customDrawer.CustomDrawerState
@@ -78,6 +81,11 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color.Red)
         }
+    }
+
+    if (state.message?.isNotEmpty() == true) {
+        Toast.makeText(LocalContext.current, state.message, Toast.LENGTH_SHORT).show()
+        viewModel.resetMessages()
     }
 
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
@@ -141,7 +149,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
 fun MainContent(
     modifier: Modifier = Modifier,
     tasks: List<TaskModel>,
-    categories: List<CategoryModel>,
+    categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel,
     drawerState: CustomDrawerState,
     onDrawerState: (CustomDrawerState) -> Unit
@@ -177,18 +185,25 @@ fun MainContent(
 
             Spacer(modifier = Modifier.size(24.dp))
 
-            TasksColumn(tasks)
+            TasksColumn(tasks, viewModel = viewModel)
         }
 
         Button(
             onClick = {
+                val category = CategoryModel(
+                    title = "Tecnología",
+                    color = 2618098
+                )
+
+                viewModel.createCategory(category)
 
                 val task = TaskModel(
-                    title = "Tarea de prueba",
-                    createdDate = 0,
+                    title = "Programar Google",
+                    categoryId = 6L,
+                    createdDate = 1,
                     completedDate = 0,
-                    categoryId = 1
                 )
+
                 viewModel.createTask(task)
             },
             modifier = Modifier
@@ -250,7 +265,7 @@ fun FirstIconRow(
 }
 
 @Composable
-fun CategoriesRow(categories: List<CategoryModel>) {
+fun CategoriesRow(categories: List<CategoryWithTaskCount>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -279,9 +294,12 @@ fun CategoriesRow(categories: List<CategoryModel>) {
 }
 
 @Composable
-fun CategoriesItem(categoryModel: CategoryModel) {
+fun CategoriesItem(categoryModel: CategoryWithTaskCount) {
 
-    val progress = if (true) 5f / 30f else 0f
+    val progress =
+        if (categoryModel.pendingTasks != 0)
+            categoryModel.completedTasks.toFloat() / categoryModel.totalTasks.toFloat()
+        else 0f
 
     Column(
         modifier = Modifier
@@ -294,7 +312,7 @@ fun CategoriesItem(categoryModel: CategoryModel) {
                 .padding(24.dp)
         ) {
             Text(
-                text = "10 tasks",
+                text = "${categoryModel.pendingTasks} tasks",
                 color = Color.LightGray,
                 fontSize = 16.sp
             )
@@ -318,16 +336,18 @@ fun CategoriesItem(categoryModel: CategoryModel) {
                     modifier = Modifier
                         .fillMaxWidth(progress)
                         .height(4.dp)
-                        .background(Color.Magenta, RoundedCornerShape(4.dp))
+                        .background(
+                            color = Color(0xFF000000 or categoryModel.color.toLong()),
+                            RoundedCornerShape(4.dp)
+                        )
                 )
             }
-
         }
     }
 }
 
 @Composable
-fun TasksColumn(tasks: List<TaskModel>) {
+fun TasksColumn(tasks: List<TaskModel>, viewModel: MainScreenViewModel) {
     Column(modifier = Modifier) {
         Text(
             "TODAY'S TASKS",
@@ -345,7 +365,7 @@ fun TasksColumn(tasks: List<TaskModel>) {
                 .padding(vertical = 8.dp)
         ) {
             items(tasks) {
-                TasksItem(it)
+                TasksItem(it, viewModel)
                 Spacer(modifier = Modifier.size(12.dp))
             }
         }
@@ -353,7 +373,7 @@ fun TasksColumn(tasks: List<TaskModel>) {
 }
 
 @Composable
-fun TasksItem(taskItem: TaskModel) {
+fun TasksItem(taskItem: TaskModel, viewModel: MainScreenViewModel) {
 
     var checkValue by rememberSaveable { mutableStateOf(taskItem.completed) }
 
@@ -374,7 +394,10 @@ fun TasksItem(taskItem: TaskModel) {
             ) {
                 Checkbox(
                     checked = checkValue,
-                    onCheckedChange = { checkValue = it },
+                    onCheckedChange = {
+                        checkValue = it
+                        viewModel.updateTask(taskItem.copy(completed = it))
+                    },
                     colors = CheckboxDefaults.colors(
                         uncheckedColor = Color.Transparent, // Hace que la casilla desaparezca
                         checkmarkColor = Color.Magenta  // Color de la marca al estar activo
