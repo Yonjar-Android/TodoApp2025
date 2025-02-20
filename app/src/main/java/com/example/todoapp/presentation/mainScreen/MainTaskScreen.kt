@@ -88,6 +88,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
         viewModel.resetMessages()
     }
 
+    var showCreateTaskScreen by remember { mutableStateOf(false) }
+
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
     var selectedNavigationItem by remember { mutableStateOf(NavigationItem.Menu) }
 
@@ -139,8 +141,15 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
             tasks = state.tasks,
             categories = state.categories,
             viewModel = viewModel,
+            showTaskScreen = { showCreateTaskScreen = !showCreateTaskScreen },
             drawerState,
             onDrawerState = { drawerState = it })
+    }
+
+    if (showCreateTaskScreen) {
+        TaskCreateScreen(categories = state.categories,
+            viewModel = viewModel,
+            onDismiss = { showCreateTaskScreen = false })
     }
 
 }
@@ -151,6 +160,7 @@ fun MainContent(
     tasks: List<TaskModel>,
     categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel,
+    showTaskScreen: () -> Unit,
     drawerState: CustomDrawerState,
     onDrawerState: (CustomDrawerState) -> Unit
 ) {
@@ -190,21 +200,7 @@ fun MainContent(
 
         Button(
             onClick = {
-                val category = CategoryModel(
-                    title = "Tecnología",
-                    color = 2618098
-                )
-
-                viewModel.createCategory(category)
-
-                val task = TaskModel(
-                    title = "Programar Google",
-                    categoryId = 6L,
-                    createdDate = 1,
-                    completedDate = 0,
-                )
-
-                viewModel.createTask(task)
+                showTaskScreen()
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -396,7 +392,12 @@ fun TasksItem(taskItem: TaskModel, viewModel: MainScreenViewModel) {
                     checked = checkValue,
                     onCheckedChange = {
                         checkValue = it
-                        viewModel.updateTask(taskItem.copy(completed = it))
+                        viewModel.updateTask(
+                            taskItem.copy(
+                                completed = it,
+                                completedDate = System.currentTimeMillis()
+                            )
+                        )
                     },
                     colors = CheckboxDefaults.colors(
                         uncheckedColor = Color.Transparent, // Hace que la casilla desaparezca
