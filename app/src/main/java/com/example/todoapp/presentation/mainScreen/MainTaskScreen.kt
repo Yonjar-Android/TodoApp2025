@@ -59,9 +59,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
+import com.example.todoapp.data.mapper.TaskMapper
 import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
+import com.example.todoapp.data.models.TaskWithCategoryColor
 import com.example.todoapp.presentation.customDrawer.CustomDrawer
 import com.example.todoapp.presentation.customDrawer.CustomDrawerState
 import com.example.todoapp.presentation.customDrawer.isOpened
@@ -157,7 +159,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
 @Composable
 fun MainContent(
     modifier: Modifier = Modifier,
-    tasks: List<TaskModel>,
+    tasks: List<TaskWithCategoryColor>,
     categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel,
     showTaskScreen: () -> Unit,
@@ -343,7 +345,7 @@ fun CategoriesItem(categoryModel: CategoryWithTaskCount) {
 }
 
 @Composable
-fun TasksColumn(tasks: List<TaskModel>, viewModel: MainScreenViewModel) {
+fun TasksColumn(tasks: List<TaskWithCategoryColor>, viewModel: MainScreenViewModel) {
     Column(modifier = Modifier) {
         Text(
             "TODAY'S TASKS",
@@ -369,7 +371,7 @@ fun TasksColumn(tasks: List<TaskModel>, viewModel: MainScreenViewModel) {
 }
 
 @Composable
-fun TasksItem(taskItem: TaskModel, viewModel: MainScreenViewModel) {
+fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
 
     var checkValue by rememberSaveable { mutableStateOf(taskItem.completed) }
 
@@ -386,22 +388,28 @@ fun TasksItem(taskItem: TaskModel, viewModel: MainScreenViewModel) {
                 modifier = Modifier
                     .size(24.dp)  // Tamaño del checkbox
                     .clip(RoundedCornerShape(16.dp))  // Bordes redondeados
-                    .border(2.dp, Color.Magenta, RoundedCornerShape(16.dp))  // Borde redondeado
+                    .border(
+                        2.dp,
+                        Color(0xFF000000 or taskItem.categoryColor.toLong()),
+                        RoundedCornerShape(16.dp)
+                    )  // Borde redondeado
             ) {
                 Checkbox(
                     checked = checkValue,
                     onCheckedChange = {
                         checkValue = it
                         viewModel.updateTask(
-                            taskItem.copy(
-                                completed = it,
-                                completedDate = System.currentTimeMillis()
+                            TaskMapper.toTaskModelFromTaskColor(
+                                taskItem.copy(
+                                    completed = it,
+                                    completedDate = System.currentTimeMillis()
+                                )
                             )
                         )
                     },
                     colors = CheckboxDefaults.colors(
                         uncheckedColor = Color.Transparent, // Hace que la casilla desaparezca
-                        checkmarkColor = Color.Magenta  // Color de la marca al estar activo
+                        checkmarkColor = Color.White  // Color de la marca al estar activo
                     )
                 )
             }

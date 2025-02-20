@@ -23,13 +23,34 @@ class MainScreenViewModel @Inject constructor(
 
     init {
         getCategoriesWithTaskCount()
-        getTasks()
+        getTasksColor()
     }
 
-    private fun getTasks(){
+    /*private fun getTasks(){
         viewModelScope.launch {
             try {
                 val response = taskRepository.getTasks()
+
+                _state.update {
+                    _state.value.copy(
+                        tasks = response)
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    _state.value.copy(
+                        message = e.message
+                    )
+                }
+
+                println("TasksError: ${e.message}")
+            }
+        }
+    }*/
+
+    private fun getTasksColor(){
+        viewModelScope.launch {
+            try {
+                val response = taskRepository.getTasksColor()
 
                 _state.update {
                     _state.value.copy(
@@ -58,7 +79,7 @@ class MainScreenViewModel @Inject constructor(
                         message = "Se ha creado una nueva tarea"
                     )
                 }
-                getTasks()
+                getTasksColor()
             } catch (e: Exception) {
                 _state.update {
                     _state.value.copy(
@@ -81,7 +102,7 @@ class MainScreenViewModel @Inject constructor(
                         message = null
                     )
                 }
-                getTasks()
+                getTasksColor()
             } catch (e: Exception){
                 _state.update {
                     _state.value.copy(
@@ -104,7 +125,7 @@ class MainScreenViewModel @Inject constructor(
                         message = "Se eliminado una tarea"
                     )
                 }
-                getTasks()
+                getTasksColor()
             } catch (e: Exception){
                 _state.update {
                     _state.value.copy(
@@ -174,7 +195,7 @@ class MainScreenViewModel @Inject constructor(
                         message = "Se ha creado una nueva categoria"
                     )
                 }
-                getTasks()
+                getTasksColor()
             } catch (e: Exception) {
                 _state.update {
                     _state.value.copy(

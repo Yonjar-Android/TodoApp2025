@@ -9,6 +9,7 @@ import com.example.todoapp.data.mapper.TaskMapper
 import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
+import com.example.todoapp.data.models.TaskWithCategoryColor
 import javax.inject.Inject
 
 
@@ -18,7 +19,6 @@ class TaskRepository @Inject constructor(
 ) {
 
     suspend fun getTasks(): List<TaskModel> {
-
         val tasks:List<TaskRoomModel> = taskDao.getTasks()
         val tasksGet = mutableListOf<TaskModel>()
 
@@ -29,6 +29,12 @@ class TaskRepository @Inject constructor(
             }
         }
         return tasksGet
+    }
+
+    suspend fun getTasksColor(): List<TaskWithCategoryColor> {
+        val tasks:List<TaskWithCategoryColor> = taskDao.getTasksWithCategoryColor()
+
+        return tasks
     }
 
     suspend fun createTask(task: TaskModel) {

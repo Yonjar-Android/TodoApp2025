@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.todoapp.data.database.entities.TaskRoomModel
+import com.example.todoapp.data.models.TaskWithCategoryColor
 
 @Dao
 interface TaskDao {
@@ -24,4 +25,12 @@ interface TaskDao {
 
     @Query("DELETE FROM tasks")
     suspend fun deleteAllTasks()
+
+    @Query("""
+        SELECT t.id, t.title, t.completed, t.categoryId, t.createdDate, 
+               t.completedDate, c.color as categoryColor
+        FROM tasks t
+        INNER JOIN categories c ON t.categoryId = c.id
+    """)
+    suspend fun getTasksWithCategoryColor(): List<TaskWithCategoryColor>
 }
