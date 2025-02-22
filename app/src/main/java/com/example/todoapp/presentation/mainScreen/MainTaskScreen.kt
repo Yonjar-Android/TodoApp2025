@@ -77,16 +77,22 @@ import kotlin.math.roundToInt
 @Composable
 fun MainTaskScreen(viewModel: MainScreenViewModel) {
 
-    val state by viewModel.state.collectAsState()
+    val loading by viewModel.isLoading.collectAsState()
 
-    if (state.isLoading) {
+    val message by viewModel.message.collectAsState()
+
+    val tasks by viewModel.tasks.collectAsState()
+
+    val categories by viewModel.categories.collectAsState()
+
+    if (loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color.Red)
         }
     }
 
-    if (state.message?.isNotEmpty() == true) {
-        Toast.makeText(LocalContext.current, state.message, Toast.LENGTH_SHORT).show()
+    if (message?.isNotEmpty() == true) {
+        Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
         viewModel.resetMessages()
     }
 
@@ -140,8 +146,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
         Modifier
             .offset(x = animatedOffset)
             .scale(scale = animatedScale),
-            tasks = state.tasks,
-            categories = state.categories,
+            tasks = tasks,
+            categories = categories,
             viewModel = viewModel,
             showTaskScreen = { showCreateTaskScreen = !showCreateTaskScreen },
             drawerState,
@@ -149,7 +155,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
     }
 
     if (showCreateTaskScreen) {
-        TaskCreateScreen(categories = state.categories,
+        TaskCreateScreen(categories = categories,
             viewModel = viewModel,
             onDismiss = { showCreateTaskScreen = false })
     }
@@ -192,6 +198,8 @@ fun MainContent(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 8.dp)
             )
+
+            Spacer(modifier = Modifier.size(24.dp))
 
             CategoriesRow(categories)
 
@@ -297,7 +305,7 @@ fun CategoriesItem(categoryModel: CategoryWithTaskCount) {
     val progress =
         if (categoryModel.pendingTasks != 0)
             categoryModel.completedTasks.toFloat() / categoryModel.totalTasks.toFloat()
-        else 0f
+        else 1f
 
     Column(
         modifier = Modifier

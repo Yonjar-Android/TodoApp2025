@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.todoapp.data.database.entities.TaskRoomModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
@@ -15,7 +16,7 @@ interface TaskDao {
     suspend fun createTask(task: TaskRoomModel)
 
     @Query("SELECT * FROM tasks")
-    suspend fun getTasks(): List<TaskRoomModel>
+    fun getTasks(): Flow<List<TaskRoomModel>>
 
     @Update
     suspend fun updateTask(task: TaskRoomModel)
@@ -32,5 +33,5 @@ interface TaskDao {
         FROM tasks t
         INNER JOIN categories c ON t.categoryId = c.id
     """)
-    suspend fun getTasksWithCategoryColor(): List<TaskWithCategoryColor>
+    fun getTasksWithCategoryColor(): Flow<List<TaskWithCategoryColor>>
 }

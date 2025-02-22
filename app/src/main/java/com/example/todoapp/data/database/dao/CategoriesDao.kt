@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.todoapp.data.database.entities.CategoryRoomModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CategoriesDao {
@@ -14,7 +15,7 @@ interface CategoriesDao {
     suspend fun createCategory(category: CategoryRoomModel)
 
     @Query("SELECT * FROM categories")
-    suspend fun getCategories(): List<CategoryRoomModel>
+    fun getCategories(): Flow<List<CategoryRoomModel>>
 
     @Update
     suspend fun updateCategory(category: CategoryRoomModel)
@@ -37,5 +38,5 @@ interface CategoriesDao {
     LEFT JOIN tasks ON categories.id = tasks.categoryId 
     GROUP BY categories.id, categories.title, categories.color
 """)
-    suspend fun getTaskCountByCategory(): List<CategoryWithTaskCount>
+    fun getTaskCountByCategory(): Flow<List<CategoryWithTaskCount>>
 }
