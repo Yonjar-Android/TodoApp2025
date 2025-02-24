@@ -26,15 +26,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -48,22 +55,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.R
 import com.example.todoapp.data.mapper.TaskMapper
 import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
+import com.example.todoapp.presentation.categories.CategoriesScreen
 import com.example.todoapp.presentation.customDrawer.CustomDrawer
 import com.example.todoapp.presentation.customDrawer.CustomDrawerState
 import com.example.todoapp.presentation.customDrawer.isOpened
@@ -76,6 +89,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun MainTaskScreen(viewModel: MainScreenViewModel) {
+
+    val navController = rememberNavController()
 
     val loading by viewModel.isLoading.collectAsState()
 
@@ -136,22 +151,49 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
             selectedNavigationItem = selectedNavigationItem,
             onNavigationItemClick = {
                 selectedNavigationItem = it
+
+                when (it) {
+                    NavigationItem.Menu -> navController.navigate("mainContent")
+                    NavigationItem.Categories -> navController.navigate("categories")
+                    /*NavigationItem.Templates -> navController.navigate("templates")
+                    NavigationItem.Analytics -> navController.navigate("analytics")*/
+                    else -> navController.navigate("mainContent")
+                }
             },
             onCloseClick = {
                 drawerState = CustomDrawerState.Closed
             }
         )
 
-        MainContent(modifier =
-        Modifier
+        val modifierEdit = Modifier
             .offset(x = animatedOffset)
-            .scale(scale = animatedScale),
-            tasks = tasks,
-            categories = categories,
-            viewModel = viewModel,
-            showTaskScreen = { showCreateTaskScreen = !showCreateTaskScreen },
-            drawerState,
-            onDrawerState = { drawerState = it })
+            .scale(scale = animatedScale)
+            .clip(RoundedCornerShape(24.dp))
+            .systemBarsPadding()
+            .background(BlueBg)
+
+        NavHost(navController = navController, startDestination = "mainContent") {
+            composable("mainContent") {
+                MainContent(
+                    modifier = modifierEdit,
+                    tasks = tasks,
+                    categories = categories,
+                    viewModel = viewModel,
+                    showTaskScreen = { showCreateTaskScreen = !showCreateTaskScreen },
+                    drawerState = drawerState,
+                    onDrawerState = { drawerState = it }
+                )
+            }
+
+            composable("categories") {
+                CategoriesScreen(
+                    modifier = modifierEdit,
+                    drawerState = drawerState,
+                    onDrawerState = { drawerState = it },
+                    categories = categories
+                )
+            }
+        }
     }
 
     if (showCreateTaskScreen) {
@@ -175,9 +217,6 @@ fun MainContent(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color.Red)
-            .systemBarsPadding()
     ) {
         Column(
             modifier = Modifier
@@ -259,11 +298,14 @@ fun FirstIconRow(
         ) {
 
             IconFunc(
-                size = 22.dp, idImage = R.drawable.search, iconDescription = "Search bar icon"
+                size = 22.dp, idImage = R.drawable.search, iconDescription = "Search bar icon",
+                modifier = Modifier.padding(horizontal = 8.dp), funcClick = {}
             )
 
             IconFunc(
-                size = 28.dp, idImage = R.drawable.bell, iconDescription = "Notification bell icon"
+                size = 28.dp, idImage = R.drawable.bell, iconDescription = "Notification bell icon",
+                modifier = Modifier.padding(horizontal = 8.dp),
+                funcClick = {}
             )
 
         }
@@ -383,6 +425,13 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
 
     var checkValue by rememberSaveable { mutableStateOf(taskItem.completed) }
 
+    var isMenuVisible by remember { mutableStateOf(false) }
+
+    var deleteDialogVisible by remember { mutableStateOf(false) }
+
+    var editDialogVisible by remember { mutableStateOf(false) }
+
+
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
             modifier = Modifier
@@ -433,25 +482,215 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
                     TextDecoration.None
                 }
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Box {
+
+
+                IconButton(modifier = Modifier.size(30.dp),
+                    onClick = {
+                        isMenuVisible = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Sharp.MoreVert, contentDescription = "3 points Icon",
+                        tint = Color.White
+                    )
+                }
+
+                DropDownMenuTaskItem(
+                    isVisible = isMenuVisible,
+                    onVisibleChange = { isMenuVisible = it },
+                    onEdit = {
+                        editDialogVisible = !editDialogVisible
+                    },
+                    onDelete = {
+                        deleteDialogVisible = !deleteDialogVisible
+                    }
+                )
+
+                if (editDialogVisible) {
+                    EditTaskDialog(
+                        taskItem.title,
+                        onEdit = { newText ->
+                            viewModel.updateTask(
+                                TaskMapper.toTaskModelFromTaskColor(taskItem)
+                                    .copy(title = newText)
+                            )
+                        },
+                        onDismissDialog = { editDialogVisible = !editDialogVisible }
+                    )
+                }
+
+                if (deleteDialogVisible) {
+                    DeleteTaskDialog(
+                        onDelete = {
+                            viewModel.deleteTask(
+                                TaskMapper.toTaskModelFromTaskColor(taskItem)
+                            )
+                        },
+                        onDismissDialog = { deleteDialogVisible = !deleteDialogVisible }
+                    )
+                }
+            }
         }
     }
 }
 
+@Composable
+fun EditTaskDialog(
+    currentText: String,
+    onDismissDialog: () -> Unit,
+    onEdit: (String) -> Unit
+) {
+    var editedText by remember { mutableStateOf(currentText) }
+
+    AlertDialog(
+        containerColor = BlueBg,
+        onDismissRequest = {},
+        confirmButton = {
+            Button(
+                onClick = {
+                    onEdit(editedText)
+                    onDismissDialog()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2E7D32 )
+                )
+            ) {
+                Text("Guardar", color = Color.White)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismissDialog() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF455A64 )
+                )
+            ) {
+                Text("Cancelar", color = Color.White)
+            }
+        },
+        title = {
+            Text(
+                "Editar tarea",
+                color = Color.White,
+                fontWeight = FontWeight.Medium
+            )
+        },
+        text = {
+            Column {
+                TextField(
+                    value = editedText,
+                    onValueChange = { editedText = it }, // Actualiza el estado con el nuevo texto
+                    label = { Text("Nuevo texto", fontSize = 14.sp) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedLabelColor = Color.White.copy(alpha = 0.7f),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                        cursorColor = Color.White
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp, // Tamaño de fuente más grande
+                        color = Color.White // Color del texto
+                    )
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteTaskDialog(
+    onDismissDialog: () -> Unit,
+    onDelete: () -> Unit
+) {
+    AlertDialog(
+        containerColor = BlueBg,
+        onDismissRequest = {},
+        confirmButton = {
+            Button(
+                onClick = {
+                    onDelete.invoke()
+                    onDismissDialog.invoke()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFC62828)
+                )
+            ) {
+                Text("Eliminar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismissDialog.invoke() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF455A64 )
+                )
+            ) {
+                Text("Cancelar", color = Color.White)
+            }
+        },
+        title = {
+            Text(
+                "¿Deseas eliminar la tarea?",
+                color = Color.White,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    )
+}
+
+@Composable
+fun DropDownMenuTaskItem(
+    isVisible: Boolean,
+    onVisibleChange: (Boolean) -> Unit,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
+
+    DropdownMenu(
+        expanded = isVisible,
+        onDismissRequest = { onVisibleChange(false) }
+    ) {
+        DropdownMenuItem(
+            text = { Text("Eliminar") },
+            onClick = {
+                onVisibleChange(false)
+                onDelete()
+            }
+        )
+
+        DropdownMenuItem(
+            text = { Text("Editar") },
+            onClick = {
+                onVisibleChange(false)
+                onEdit()
+            }
+        )
+    }
+}
 
 @Composable
 fun IconFunc(
     idImage: Int,
     size: Dp,
     iconDescription: String,
+    modifier: Modifier = Modifier,
+    funcClick: () -> Unit
 ) {
-    Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+    Box(modifier = modifier) {
         IconButton(onClick = {
-
+            funcClick.invoke()
         }) {
             Icon(
                 modifier = Modifier
-                    .size(size)
-                    .padding(),
+                    .size(size),
                 painter = painterResource(id = idImage),
                 contentDescription = iconDescription,
                 tint = Color.White
@@ -460,3 +699,4 @@ fun IconFunc(
 
     }
 }
+
