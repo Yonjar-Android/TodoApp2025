@@ -55,7 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -72,9 +71,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.todoapp.R
 import com.example.todoapp.data.mapper.TaskMapper
-import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
-import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
 import com.example.todoapp.presentation.categories.CategoriesScreen
 import com.example.todoapp.presentation.customDrawer.CustomDrawer
@@ -155,8 +152,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                 when (it) {
                     NavigationItem.Menu -> navController.navigate("mainContent")
                     NavigationItem.Categories -> navController.navigate("categories")
-                    /*NavigationItem.Templates -> navController.navigate("templates")
-                    NavigationItem.Analytics -> navController.navigate("analytics")*/
+                    /*NavigationItem.Analytics -> navController.navigate("analytics")*/
                     else -> navController.navigate("mainContent")
                 }
             },
@@ -190,7 +186,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                     modifier = modifierEdit,
                     drawerState = drawerState,
                     onDrawerState = { drawerState = it },
-                    categories = categories
+                    categories = categories,
+                    viewModel = viewModel
                 )
             }
         }
@@ -524,13 +521,14 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
                 }
 
                 if (deleteDialogVisible) {
-                    DeleteTaskDialog(
+                    DeleteDialog(
                         onDelete = {
                             viewModel.deleteTask(
                                 TaskMapper.toTaskModelFromTaskColor(taskItem)
                             )
                         },
-                        onDismissDialog = { deleteDialogVisible = !deleteDialogVisible }
+                        onDismissDialog = { deleteDialogVisible = !deleteDialogVisible },
+                        editText = "¿Deseas eliminar la tarea?"
                     )
                 }
             }
@@ -606,7 +604,8 @@ fun EditTaskDialog(
 }
 
 @Composable
-fun DeleteTaskDialog(
+fun DeleteDialog(
+    editText: String,
     onDismissDialog: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -638,7 +637,7 @@ fun DeleteTaskDialog(
         },
         title = {
             Text(
-                "¿Deseas eliminar la tarea?",
+                editText,
                 color = Color.White,
                 fontWeight = FontWeight.Medium
             )

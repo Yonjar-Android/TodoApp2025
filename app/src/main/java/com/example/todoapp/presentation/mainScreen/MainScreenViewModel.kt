@@ -106,6 +106,40 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    fun updateCategory(categoryModel: CategoryModel){
+        loadingState()
+        viewModelScope.launch {
+            try {
+                taskRepository.updateCategory(categoryModel)
+                _message.value = null
+
+            } catch (e: Exception) {
+                _message.value = e.message
+
+
+                println("TaskError: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteCategory(categoryModel: CategoryModel){
+        loadingState()
+        viewModelScope.launch {
+            try {
+                taskRepository.deleteCategory(categoryModel)
+
+                _message.update {
+                    "Se ha eliminado la categoria"
+                }
+            } catch (e: Exception) {
+                _message.update {
+                    e.message
+                }
+                println("CategoryError: ${e.message}")
+            }
+        }
+    }
+
     fun resetMessages() {
         _message.update {
             null

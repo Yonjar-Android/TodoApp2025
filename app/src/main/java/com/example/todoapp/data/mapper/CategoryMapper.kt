@@ -2,6 +2,7 @@ package com.example.todoapp.data.mapper
 
 import com.example.todoapp.data.database.entities.CategoryRoomModel
 import com.example.todoapp.data.models.CategoryModel
+import com.example.todoapp.data.models.CategoryWithTaskCount
 
 object CategoryMapper {
     // Convierte de CategoryModel a CategoryRoomModel
@@ -19,6 +20,17 @@ object CategoryMapper {
             id = categoryRoomModel.id,
             title = categoryRoomModel.title,
             color = categoryRoomModel.color
+        )
+    }
+
+    fun fromCategoryCountTaskToCategoryModel
+                (categoryWithTaskCount:
+                 CategoryWithTaskCount):
+            CategoryModel {
+        return CategoryModel(
+            id = categoryWithTaskCount.id,
+            title = categoryWithTaskCount.title,
+            color = categoryWithTaskCount.color
         )
     }
 }

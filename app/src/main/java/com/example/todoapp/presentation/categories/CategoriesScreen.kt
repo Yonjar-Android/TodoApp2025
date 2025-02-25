@@ -1,6 +1,9 @@
 package com.example.todoapp.presentation.categories
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,12 +15,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,20 +37,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
+import com.example.todoapp.data.mapper.CategoryMapper
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.presentation.customDrawer.CustomDrawerState
 import com.example.todoapp.presentation.customDrawer.opposite
+import com.example.todoapp.presentation.mainScreen.DeleteDialog
 import com.example.todoapp.presentation.mainScreen.IconFunc
+import com.example.todoapp.presentation.mainScreen.MainScreenViewModel
+import com.example.todoapp.ui.theme.BlueBg
+import com.example.todoapp.ui.theme.BlueBgTwo
+import com.github.skydoves.colorpicker.compose.ColorEnvelope
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 @Composable
 fun CategoriesScreen(
     modifier: Modifier = Modifier,
     drawerState: CustomDrawerState,
     onDrawerState: (CustomDrawerState) -> Unit,
-    categories: List<CategoryWithTaskCount>
+    categories: List<CategoryWithTaskCount>,
+    viewModel: MainScreenViewModel
 ) {
     Column(
         modifier = modifier
@@ -50,12 +75,100 @@ fun CategoriesScreen(
     ) {
         IconRowCategories(drawerState, onDrawerState)
 
+        Spacer(modifier = Modifier.size(16.dp))
+
         LazyColumn {
-            items(categories){
-                Text(it.title)
+            items(categories) {
+                ItemCategory(it, viewModel = viewModel)
+
+                Spacer(modifier = Modifier.size(8.dp))
             }
         }
     }
+}
+
+@Composable
+fun ItemCategory(
+    category: CategoryWithTaskCount,
+    viewModel: MainScreenViewModel // Si necesitas el ViewModel para acciones
+) {
+    var isMenuVisible by remember { mutableStateOf(false) }
+    var deleteDialogVisible by remember { mutableStateOf(false) }
+    var editDialogVisible by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp)) // Bordes redondeados
+                .background(BlueBgTwo) // Fondo azul
+                .padding(24.dp), // Padding interno
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Nombre de la categoría
+            Text(
+                text = category.title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.weight(1f) // Ocupa el espacio disponible
+            )
+
+            // Ícono de tres puntos
+            Box {
+                IconButton(
+                    modifier = Modifier.size(30.dp),
+                    onClick = { isMenuVisible = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Opciones",
+                        tint = Color.White
+                    )
+                }
+
+                // Menú desplegable
+                DropDownMenuCategories(
+                    isVisible = isMenuVisible,
+                    onVisibleChange = { isMenuVisible = it },
+                    onEdit = { editDialogVisible = true },
+                    onDelete = { deleteDialogVisible = true }
+                )
+            }
+        }
+    }
+
+    if (deleteDialogVisible) {
+        DeleteDialog(
+            editText = "¿Deseas eliminar la categoría?",
+            onDelete = {
+                viewModel.deleteCategory(
+                    CategoryMapper.fromCategoryCountTaskToCategoryModel(category)
+                )
+
+            },
+            onDismissDialog = { deleteDialogVisible = false }
+        )
+    }
+
+    if (editDialogVisible) {
+        EditCategoriesDialog(
+            currentText = category.title,
+            currentColor = category.color,
+            onEdit = { newTitle, newColor ->
+                viewModel.updateCategory(
+                    CategoryMapper.fromCategoryCountTaskToCategoryModel(
+                        category.copy(
+                            title = newTitle,
+                            color = newColor
+                        )
+                    )
+                )
+            },
+            onDismissDialog = { editDialogVisible = false }
+        )
+    }
+
 }
 
 @Composable
@@ -118,4 +231,152 @@ fun IconRowCategories(
             }
         )
     }
+}
+
+@Composable
+fun DropDownMenuCategories(
+    isVisible: Boolean,
+    onVisibleChange: (Boolean) -> Unit,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit
+) {
+
+    DropdownMenu(
+        expanded = isVisible,
+        onDismissRequest = { onVisibleChange(false) }
+    ) {
+        DropdownMenuItem(
+            text = { Text("Eliminar") },
+            onClick = {
+                onVisibleChange(false)
+                onDelete()
+            }
+        )
+
+        DropdownMenuItem(
+            text = { Text("Editar") },
+            onClick = {
+                onVisibleChange(false)
+                onEdit()
+            }
+        )
+    }
+}
+
+@Composable
+fun EditCategoriesDialog(
+    currentText: String,
+    currentColor: Int,
+    onDismissDialog: () -> Unit,
+    onEdit: (String, Int) -> Unit
+) {
+    var editedText by remember { mutableStateOf(currentText) }
+
+    var color by remember { mutableIntStateOf(currentColor) }
+
+    AlertDialog(
+        containerColor = BlueBg,
+        onDismissRequest = {},
+        confirmButton = {
+            Button(
+                onClick = {
+                    onEdit(editedText, color)
+                    onDismissDialog()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2E7D32)
+                )
+            ) {
+                Text("Guardar", color = Color.White)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismissDialog() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF455A64)
+                )
+            ) {
+                Text("Cancelar", color = Color.White)
+            }
+        },
+        title = {
+            Text(
+                "Editar categoría",
+                color = Color.White,
+                fontWeight = FontWeight.Medium
+            )
+        },
+        text = {
+            Column {
+                TextField(
+                    value = editedText,
+                    onValueChange = { editedText = it },
+                    label = { Text("Nuevo texto", fontSize = 14.sp) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedLabelColor = Color.White.copy(alpha = 0.7f),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                        cursorColor = Color.White
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.size(32.dp))
+
+                val controller = rememberColorPickerController()
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        "Select a Color",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
+
+                    var colorChange by remember { mutableStateOf(Color(0xFF000000 or currentColor.toLong())) }
+
+                    HsvColorPicker(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .padding(10.dp),
+                        controller = controller,
+                        onColorChanged = { colorEnvelope: ColorEnvelope ->
+                            colorChange = colorEnvelope.color
+                            color = colorEnvelope.color.toArgb()
+                        }
+                    )
+
+                    Box(modifier = Modifier
+                        .size(90.dp)
+                        .background(Color.White), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .background(
+                                    if (colorChange == Color(1.0F, 1.0F, 1.0F, 1.0F)) {
+                                        Color(0xFF000000 or currentColor.toLong())
+                                    } else {
+                                        colorChange
+                                    }
+                                )
+                        )
+                    }
+                }
+            }
+
+        }
+    )
 }

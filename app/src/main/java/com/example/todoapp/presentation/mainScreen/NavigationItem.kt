@@ -17,9 +17,5 @@ enum class NavigationItem(
     Analytics(
         title = "Analytics",
         icon = R.drawable.analytics
-    ),
-    Templates(
-        title = "Templates",
-        icon = R.drawable.ic_launcher_foreground
     )
 }

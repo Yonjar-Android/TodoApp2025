@@ -133,10 +133,6 @@ fun CustomDrawer(
                             onNavigationItemClick(NavigationItem.Categories)
 
                         }
-                        NavigationItem.Templates -> {
-                            onNavigationItemClick(NavigationItem.Templates)
-
-                        }
 
                         NavigationItem.Analytics -> {
                             onNavigationItemClick(NavigationItem.Analytics)
