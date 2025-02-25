@@ -93,6 +93,10 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
 
+    // Color picker
+
+    implementation(libs.compose.colorpicker)
+
 }
 
 kapt {
