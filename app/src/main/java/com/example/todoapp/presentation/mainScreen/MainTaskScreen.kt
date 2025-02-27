@@ -97,6 +97,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
 
     val categories by viewModel.categories.collectAsState()
 
+    val categoryId by viewModel.categoryId.collectAsState()
+
     if (loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color.Red)
@@ -173,6 +175,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                 MainContent(
                     modifier = modifierEdit,
                     tasks = tasks,
+                    categoryId = categoryId,
                     categories = categories,
                     viewModel = viewModel,
                     showTaskScreen = { showCreateTaskScreen = !showCreateTaskScreen },
@@ -205,6 +208,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
 fun MainContent(
     modifier: Modifier = Modifier,
     tasks: List<TaskWithCategoryColor>,
+    categoryId: Long?,
     categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel,
     showTaskScreen: () -> Unit,
@@ -237,11 +241,11 @@ fun MainContent(
 
             Spacer(modifier = Modifier.size(24.dp))
 
-            CategoriesRow(categories)
+            CategoriesRow(categories, viewModel)
 
             Spacer(modifier = Modifier.size(24.dp))
 
-            TasksColumn(tasks, viewModel = viewModel)
+            TasksColumn(tasks, viewModel = viewModel, categoryId)
         }
 
         Button(
@@ -290,9 +294,34 @@ fun FirstIconRow(
             )
         }
 
+        var searchQuery by remember { mutableStateOf("") }
+
         Row(
             modifier = Modifier, verticalAlignment = Alignment.CenterVertically
         ) {
+
+            Spacer(modifier = Modifier.weight(0.1f))
+
+            // TextField (centrado)
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .weight(2f) // Ajusta el peso para centrar el TextField
+                    .clip(RoundedCornerShape(20.dp))
+                    .height(60.dp),
+                placeholder = { Text("Buscar...", color = Color.White) },
+                singleLine = true,
+                colors = androidx.compose.material3.TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.White,
+                    unfocusedIndicatorColor = Color.White,
+                    cursorColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                )
+            )
 
             IconFunc(
                 size = 22.dp, idImage = R.drawable.search, iconDescription = "Search bar icon",
@@ -310,7 +339,11 @@ fun FirstIconRow(
 }
 
 @Composable
-fun CategoriesRow(categories: List<CategoryWithTaskCount>) {
+fun CategoriesRow(
+    categories: List<CategoryWithTaskCount>,
+    viewModel: MainScreenViewModel
+) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -330,8 +363,16 @@ fun CategoriesRow(categories: List<CategoryWithTaskCount>) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         ) {
-            items(categories) {
-                CategoriesItem(it)
+
+            items(categories, key = { cat -> cat.id }) {
+                CategoriesItem(it, loadTasksByCategory = { categoryId ->
+                    if (viewModel.categoryId.value == categoryId){
+                        viewModel.categoryId.value = null
+                    } else{
+                        viewModel.categoryId.value = categoryId
+                    }
+                })
+
                 Spacer(modifier = Modifier.size(12.dp))
             }
         }
@@ -339,7 +380,10 @@ fun CategoriesRow(categories: List<CategoryWithTaskCount>) {
 }
 
 @Composable
-fun CategoriesItem(categoryModel: CategoryWithTaskCount) {
+fun CategoriesItem(
+    categoryModel: CategoryWithTaskCount,
+    loadTasksByCategory: (Long) -> Unit
+) {
 
     val progress =
         if (categoryModel.pendingTasks != 0)
@@ -350,7 +394,9 @@ fun CategoriesItem(categoryModel: CategoryWithTaskCount) {
         modifier = Modifier
             .clip(shape = RoundedCornerShape(14.dp))
             .background(BlueBgTwo)
-
+            .clickable {
+                loadTasksByCategory(categoryModel.id)
+            }
     ) {
         Column(
             modifier = Modifier
@@ -392,7 +438,11 @@ fun CategoriesItem(categoryModel: CategoryWithTaskCount) {
 }
 
 @Composable
-fun TasksColumn(tasks: List<TaskWithCategoryColor>, viewModel: MainScreenViewModel) {
+fun TasksColumn(
+    tasks: List<TaskWithCategoryColor>,
+    viewModel: MainScreenViewModel,
+    categoryId: Long?
+) {
     Column(modifier = Modifier) {
         Text(
             "TODAY'S TASKS",
@@ -409,9 +459,18 @@ fun TasksColumn(tasks: List<TaskWithCategoryColor>, viewModel: MainScreenViewMod
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         ) {
-            items(tasks) {
-                TasksItem(it, viewModel)
-                Spacer(modifier = Modifier.size(12.dp))
+
+            if (categoryId != null) {
+                val tasksFiltered = tasks.filter { item -> item.categoryId == categoryId }
+                items(tasksFiltered, key = { task -> task.id }) {
+                    TasksItem(it, viewModel)
+                    Spacer(modifier = Modifier.size(12.dp))
+                }
+            } else {
+                items(tasks, key = { task -> task.id }) {
+                    TasksItem(it, viewModel)
+                    Spacer(modifier = Modifier.size(12.dp))
+                }
             }
         }
     }
@@ -554,7 +613,7 @@ fun EditTaskDialog(
                     onDismissDialog()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2E7D32 )
+                    containerColor = Color(0xFF2E7D32)
                 )
             ) {
                 Text("Guardar", color = Color.White)
@@ -564,7 +623,7 @@ fun EditTaskDialog(
             Button(
                 onClick = { onDismissDialog() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF455A64 )
+                    containerColor = Color(0xFF455A64)
                 )
             ) {
                 Text("Cancelar", color = Color.White)
@@ -629,7 +688,7 @@ fun DeleteDialog(
             Button(
                 onClick = { onDismissDialog.invoke() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF455A64 )
+                    containerColor = Color(0xFF455A64)
                 )
             ) {
                 Text("Cancelar", color = Color.White)

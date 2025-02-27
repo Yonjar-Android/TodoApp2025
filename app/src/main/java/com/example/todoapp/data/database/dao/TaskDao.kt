@@ -34,4 +34,14 @@ interface TaskDao {
         INNER JOIN categories c ON t.categoryId = c.id
     """)
     fun getTasksWithCategoryColor(): Flow<List<TaskWithCategoryColor>>
+
+    @Query("""
+    SELECT t.id, t.title, t.completed, t.categoryId, t.createdDate, 
+           t.completedDate, c.color as categoryColor
+    FROM tasks t
+    INNER JOIN categories c ON t.categoryId = c.id
+    WHERE t.completed = 0 AND t.categoryId = :categoryId
+""")
+    fun getTasksNoCompletedWithCategoryColor(categoryId: Long): Flow<List<TaskWithCategoryColor>>
+
 }

@@ -21,23 +21,28 @@ class TaskRepository @Inject constructor(
         return taskDao.getTasksWithCategoryColor()
     }
 
+    fun getTasksNoCompletedByCategory(categoryId: Long)
+            : Flow<List<TaskWithCategoryColor>> {
+        return taskDao.getTasksNoCompletedWithCategoryColor(categoryId)
+    }
+
     suspend fun createTask(task: TaskModel) {
         val taskToCreate = TaskMapper.toTaskRoomModel(task)
 
         taskDao.createTask(taskToCreate)
     }
 
-    suspend fun updateTask(task:TaskModel){
+    suspend fun updateTask(task: TaskModel) {
         val taskUpdated = TaskMapper.toTaskRoomModel(task)
         taskDao.updateTask(taskUpdated)
     }
 
-    suspend fun deleteTask(task: TaskModel){
+    suspend fun deleteTask(task: TaskModel) {
         val taskToDelete = TaskMapper.toTaskRoomModel(task)
         taskDao.deleteTask(taskToDelete)
     }
 
-    fun getCategoriesCountTask():   Flow<List<CategoryWithTaskCount> >{
+    fun getCategoriesCountTask(): Flow<List<CategoryWithTaskCount>> {
         return categoryDao.getTaskCountByCategory()
     }
 
@@ -47,14 +52,14 @@ class TaskRepository @Inject constructor(
         categoryDao.createCategory(categoryToCreate)
     }
 
-    suspend fun updateCategory(category:CategoryModel){
+    suspend fun updateCategory(category: CategoryModel) {
         val categoryUpdated = CategoryMapper.toCategoryRoomModel(category)
         categoryDao.updateCategory(categoryUpdated)
     }
 
-    suspend fun deleteCategory(category: CategoryModel){
+    suspend fun deleteCategory(category: CategoryModel) {
         val categoryToDelete = CategoryMapper.toCategoryRoomModel(category)
         categoryDao.deleteCategory(categoryToDelete)
-    }
 
+    }
 }

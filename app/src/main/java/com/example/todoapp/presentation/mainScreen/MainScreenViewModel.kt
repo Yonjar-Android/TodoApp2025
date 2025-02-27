@@ -36,11 +36,14 @@ class MainScreenViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    var categoryId = MutableStateFlow<Long?>(null)
+
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
 
     fun createTask(taskModel: TaskModel) {
         loadingState()

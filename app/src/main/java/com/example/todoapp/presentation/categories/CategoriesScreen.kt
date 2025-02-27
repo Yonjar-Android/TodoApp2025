@@ -41,10 +41,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
 import com.example.todoapp.data.mapper.CategoryMapper
+import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.presentation.customDrawer.CustomDrawerState
 import com.example.todoapp.presentation.customDrawer.opposite
@@ -53,6 +55,7 @@ import com.example.todoapp.presentation.mainScreen.IconFunc
 import com.example.todoapp.presentation.mainScreen.MainScreenViewModel
 import com.example.todoapp.ui.theme.BlueBg
 import com.example.todoapp.ui.theme.BlueBgTwo
+import com.example.todoapp.ui.theme.PinkButton
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -65,26 +68,64 @@ fun CategoriesScreen(
     categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .clickable(enabled = drawerState == CustomDrawerState.Opened) {
-                onDrawerState(CustomDrawerState.Closed)
-            }
 
-    ) {
-        IconRowCategories(drawerState, onDrawerState)
+    var createDialogVisible by remember { mutableStateOf(false) }
 
-        Spacer(modifier = Modifier.size(16.dp))
 
-        LazyColumn {
-            items(categories) {
-                ItemCategory(it, viewModel = viewModel)
+    Box(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(enabled = drawerState == CustomDrawerState.Opened) {
+                    onDrawerState(CustomDrawerState.Closed)
+                }
 
-                Spacer(modifier = Modifier.size(8.dp))
+        ) {
+            IconRowCategories(drawerState, onDrawerState)
+
+            Spacer(modifier = Modifier.size(16.dp))
+
+            LazyColumn {
+                items(categories, key = {cat -> cat.id}) {
+                    ItemCategory(it, viewModel = viewModel)
+
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
             }
         }
+
+        Button(
+            onClick = {
+                createDialogVisible = !createDialogVisible
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 24.dp, bottom = 24.dp)
+                .size(64.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = PinkButton)
+        ) {
+            Text(
+                "+", fontSize = 32.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Normal
+            )
+        }
     }
+
+    if (createDialogVisible) {
+        CreateCategory(
+            onCreateCategory = { categoryName, color ->
+                viewModel.createCategory(
+                    CategoryModel(title = categoryName, color = color)
+                )
+            },
+            onDismissDialog = {
+                createDialogVisible = !createDialogVisible
+            }
+        )
+    }
+
 }
 
 @Composable
@@ -264,6 +305,117 @@ fun DropDownMenuCategories(
 }
 
 @Composable
+fun CreateCategory(
+    onDismissDialog: () -> Unit,
+    onCreateCategory: (String, Int) -> Unit,
+) {
+    var categoryName by remember { mutableStateOf("") }
+
+    var colorChange by remember { mutableStateOf(Color(0xFF000000)) }
+
+
+    AlertDialog(
+        containerColor = BlueBg,
+        onDismissRequest = {},
+        confirmButton = {
+            Button(
+                onClick = {
+                    onCreateCategory(categoryName, colorChange.toArgb())
+                    onDismissDialog()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2E7D32)
+                )
+            ) {
+                Text("Guardar", color = Color.White)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { onDismissDialog() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF455A64)
+                )
+            ) {
+                Text("Cancelar", color = Color.White)
+            }
+        },
+        title = {
+            Text(
+                "Crear categoría",
+                color = Color.White,
+                fontWeight = FontWeight.Medium
+            )
+        },
+        text = {
+            Column {
+                TextField(
+                    value = categoryName,
+                    onValueChange = { categoryName = it },
+                    label = { Text("Nombre de categoría", fontSize = 14.sp) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedLabelColor = Color.White.copy(alpha = 0.7f),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                        cursorColor = Color.White
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.size(32.dp))
+
+                val controller = rememberColorPickerController()
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        "Select a Color",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White
+                    )
+
+
+                    HsvColorPicker(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .padding(10.dp),
+                        controller = controller,
+                        onColorChanged = { colorEnvelope: ColorEnvelope ->
+                            colorChange = colorEnvelope.color
+                        }
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(90.dp)
+                            .background(Color.White), contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .background(colorChange)
+                        )
+                    }
+                }
+            }
+
+        }
+    )
+}
+
+@Composable
 fun EditCategoriesDialog(
     currentText: String,
     currentColor: Int,
@@ -359,9 +511,11 @@ fun EditCategoriesDialog(
                         }
                     )
 
-                    Box(modifier = Modifier
-                        .size(90.dp)
-                        .background(Color.White), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .size(90.dp)
+                            .background(Color.White), contentAlignment = Alignment.Center
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(80.dp)
