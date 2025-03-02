@@ -21,11 +21,6 @@ class TaskRepository @Inject constructor(
         return taskDao.getTasksWithCategoryColor()
     }
 
-    fun getTasksNoCompletedByCategory(categoryId: Long)
-            : Flow<List<TaskWithCategoryColor>> {
-        return taskDao.getTasksNoCompletedWithCategoryColor(categoryId)
-    }
-
     suspend fun createTask(task: TaskModel) {
         val taskToCreate = TaskMapper.toTaskRoomModel(task)
 

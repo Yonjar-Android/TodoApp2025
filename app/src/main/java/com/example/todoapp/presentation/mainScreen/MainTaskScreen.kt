@@ -1,5 +1,6 @@
 package com.example.todoapp.presentation.mainScreen
 
+import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
@@ -63,7 +64,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,6 +83,7 @@ import com.example.todoapp.ui.theme.BlueBg
 import com.example.todoapp.ui.theme.BlueBgTwo
 import com.example.todoapp.ui.theme.PinkButton
 import com.example.todoapp.ui.theme.cyanText
+import com.example.todoapp.utils.SoundPlayer
 import kotlin.math.roundToInt
 
 @Composable
@@ -101,6 +102,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
     val categoryId by viewModel.categoryId.collectAsState()
 
     val taskSearch by viewModel.taskSearch.collectAsState()
+
+    val context = LocalContext.current
 
     if (loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -184,7 +187,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                     viewModel = viewModel,
                     showTaskScreen = { showCreateTaskScreen = !showCreateTaskScreen },
                     drawerState = drawerState,
-                    onDrawerState = { drawerState = it }
+                    onDrawerState = { drawerState = it },
+                    context = context
                 )
             }
 
@@ -218,7 +222,8 @@ fun MainContent(
     viewModel: MainScreenViewModel,
     showTaskScreen: () -> Unit,
     drawerState: CustomDrawerState,
-    onDrawerState: (CustomDrawerState) -> Unit
+    onDrawerState: (CustomDrawerState) -> Unit,
+    context: Context
 ) {
     Box(
         modifier = modifier
@@ -250,7 +255,13 @@ fun MainContent(
 
             Spacer(modifier = Modifier.size(24.dp))
 
-            TasksColumn(tasks, viewModel = viewModel, categoryId, taskSearch = taskSearch)
+            TasksColumn(
+                tasks,
+                viewModel = viewModel,
+                categoryId,
+                taskSearch = taskSearch,
+                context = context
+            )
         }
 
         Button(
@@ -452,7 +463,8 @@ fun TasksColumn(
     tasks: List<TaskWithCategoryColor>,
     viewModel: MainScreenViewModel,
     categoryId: Long?,
-    taskSearch: String?
+    taskSearch: String?,
+    context: Context
 ) {
     Column(modifier = Modifier) {
         Text(
@@ -467,7 +479,8 @@ fun TasksColumn(
 
         val filteredTasks = tasks.filter { task ->
             val matchesCategory = categoryId == null || task.categoryId == categoryId
-            val matchesSearch = taskSearch.isNullOrEmpty() || task.title.contains(taskSearch, ignoreCase = true)
+            val matchesSearch =
+                taskSearch.isNullOrEmpty() || task.title.contains(taskSearch, ignoreCase = true)
             matchesCategory && matchesSearch
         }
 
@@ -477,7 +490,7 @@ fun TasksColumn(
                 .padding(vertical = 8.dp)
         ) {
             items(filteredTasks, key = { it.id }) {
-                TasksItem(it, viewModel)
+                TasksItem(it, viewModel, context = context)
                 Spacer(modifier = Modifier.size(12.dp))
             }
         }
@@ -485,7 +498,7 @@ fun TasksColumn(
 }
 
 @Composable
-fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
+fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel, context: Context) {
 
     var checkValue by rememberSaveable { mutableStateOf(taskItem.completed) }
 
@@ -494,7 +507,6 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
     var deleteDialogVisible by remember { mutableStateOf(false) }
 
     var editDialogVisible by remember { mutableStateOf(false) }
-
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Row(
@@ -518,6 +530,9 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel) {
                 Checkbox(
                     checked = checkValue,
                     onCheckedChange = {
+                        if (it == true) {
+                            SoundPlayer.playSound(context, R.raw.dingsound)
+                        }
                         checkValue = it
                         viewModel.updateTask(
                             TaskMapper.toTaskModelFromTaskColor(

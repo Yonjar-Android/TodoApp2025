@@ -58,7 +58,6 @@ class MainScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 _message.value = e.message
 
-                println("TaskError: ${e.message}")
             }
         }
     }
@@ -73,8 +72,6 @@ class MainScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 _message.value = e.message
 
-
-                println("TaskError: ${e.message}")
             }
         }
     }
@@ -88,13 +85,12 @@ class MainScreenViewModel @Inject constructor(
 
             } catch (e: Exception) {
                 _message.value = e.message
-
-                println("TaskError: ${e.message}")
             }
         }
     }
 
     fun createCategory(categoryModel: CategoryModel) {
+        loadingState()
         viewModelScope.launch {
             try {
                 taskRepository.createCategory(categoryModel)
@@ -106,7 +102,6 @@ class MainScreenViewModel @Inject constructor(
                 _message.update {
                     e.message
                 }
-                println("CategoryError: ${e.message}")
             }
         }
     }
@@ -121,8 +116,6 @@ class MainScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 _message.value = e.message
 
-
-                println("TaskError: ${e.message}")
             }
         }
     }
@@ -140,7 +133,6 @@ class MainScreenViewModel @Inject constructor(
                 _message.update {
                     e.message
                 }
-                println("CategoryError: ${e.message}")
             }
         }
     }
