@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +72,7 @@ fun CategoriesScreen(
 
     var createDialogVisible by remember { mutableStateOf(false) }
 
+    val categorySearch by viewModel.categorySearch.collectAsState()
 
     Box(modifier = modifier.fillMaxWidth()) {
         Column(
@@ -81,12 +83,23 @@ fun CategoriesScreen(
                 }
 
         ) {
-            IconRowCategories(drawerState, onDrawerState)
+            IconRowCategories(drawerState, onDrawerState, onSearch =  {
+                if (it.isEmpty()){
+                    viewModel.categorySearch.value = null
+                } else{
+                    viewModel.categorySearch.value = it
+                }
+
+            })
 
             Spacer(modifier = Modifier.size(16.dp))
 
             LazyColumn {
-                items(categories, key = {cat -> cat.id}) {
+                val filteredCategories = categories.filter {
+                    categorySearch == null || it.title.lowercase().contains(categorySearch!!)
+                }
+
+                items(filteredCategories, key = {cat -> cat.id}) {
                     ItemCategory(it, viewModel = viewModel)
 
                     Spacer(modifier = Modifier.size(8.dp))
@@ -215,7 +228,8 @@ fun ItemCategory(
 @Composable
 fun IconRowCategories(
     drawerState: CustomDrawerState,
-    onDrawerState: (CustomDrawerState) -> Unit
+    onDrawerState: (CustomDrawerState) -> Unit,
+    onSearch: (String) -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -268,7 +282,7 @@ fun IconRowCategories(
             idImage = R.drawable.search,
             iconDescription = "Search bar icon",
             funcClick = {
-
+                    onSearch(searchQuery.trim().lowercase())
             }
         )
     }

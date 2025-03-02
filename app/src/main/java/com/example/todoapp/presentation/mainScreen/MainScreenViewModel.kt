@@ -37,6 +37,8 @@ class MainScreenViewModel @Inject constructor(
         )
 
     var categoryId = MutableStateFlow<Long?>(null)
+    var taskSearch = MutableStateFlow<String?>(null)
+    var categorySearch = MutableStateFlow<String?>(null)
 
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message

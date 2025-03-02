@@ -63,6 +63,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -98,6 +99,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
     val categories by viewModel.categories.collectAsState()
 
     val categoryId by viewModel.categoryId.collectAsState()
+
+    val taskSearch by viewModel.taskSearch.collectAsState()
 
     if (loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -175,6 +178,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                 MainContent(
                     modifier = modifierEdit,
                     tasks = tasks,
+                    taskSearch = taskSearch,
                     categoryId = categoryId,
                     categories = categories,
                     viewModel = viewModel,
@@ -208,6 +212,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
 fun MainContent(
     modifier: Modifier = Modifier,
     tasks: List<TaskWithCategoryColor>,
+    taskSearch: String?,
     categoryId: Long?,
     categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel,
@@ -229,7 +234,7 @@ fun MainContent(
                 .clip(RoundedCornerShape(24.dp))
         ) {
 
-            FirstIconRow(drawerState, onDrawerState)
+            FirstIconRow(drawerState, onDrawerState, viewModel)
 
             Text(
                 "What's up, Juan!",
@@ -245,7 +250,7 @@ fun MainContent(
 
             Spacer(modifier = Modifier.size(24.dp))
 
-            TasksColumn(tasks, viewModel = viewModel, categoryId)
+            TasksColumn(tasks, viewModel = viewModel, categoryId, taskSearch = taskSearch)
         }
 
         Button(
@@ -271,7 +276,8 @@ fun MainContent(
 @Composable
 fun FirstIconRow(
     drawerState: CustomDrawerState,
-    onDrawerState: (CustomDrawerState) -> Unit
+    onDrawerState: (CustomDrawerState) -> Unit,
+    viewModel: MainScreenViewModel
 ) {
     Row(
         modifier = Modifier
@@ -325,7 +331,9 @@ fun FirstIconRow(
 
             IconFunc(
                 size = 22.dp, idImage = R.drawable.search, iconDescription = "Search bar icon",
-                modifier = Modifier.padding(horizontal = 8.dp), funcClick = {}
+                modifier = Modifier.padding(horizontal = 8.dp), funcClick = {
+                    viewModel.taskSearch.value = searchQuery
+                }
             )
 
             IconFunc(
@@ -366,10 +374,12 @@ fun CategoriesRow(
 
             items(categories, key = { cat -> cat.id }) {
                 CategoriesItem(it, loadTasksByCategory = { categoryId ->
-                    if (viewModel.categoryId.value == categoryId){
+                    if (viewModel.categoryId.value == categoryId) {
                         viewModel.categoryId.value = null
-                    } else{
+                        viewModel.taskSearch.value = null
+                    } else {
                         viewModel.categoryId.value = categoryId
+                        viewModel.taskSearch.value = null
                     }
                 })
 
@@ -441,7 +451,8 @@ fun CategoriesItem(
 fun TasksColumn(
     tasks: List<TaskWithCategoryColor>,
     viewModel: MainScreenViewModel,
-    categoryId: Long?
+    categoryId: Long?,
+    taskSearch: String?
 ) {
     Column(modifier = Modifier) {
         Text(
@@ -454,23 +465,20 @@ fun TasksColumn(
 
         Spacer(modifier = Modifier.size(8.dp))
 
+        val filteredTasks = tasks.filter { task ->
+            val matchesCategory = categoryId == null || task.categoryId == categoryId
+            val matchesSearch = taskSearch.isNullOrEmpty() || task.title.contains(taskSearch, ignoreCase = true)
+            matchesCategory && matchesSearch
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         ) {
-
-            if (categoryId != null) {
-                val tasksFiltered = tasks.filter { item -> item.categoryId == categoryId }
-                items(tasksFiltered, key = { task -> task.id }) {
-                    TasksItem(it, viewModel)
-                    Spacer(modifier = Modifier.size(12.dp))
-                }
-            } else {
-                items(tasks, key = { task -> task.id }) {
-                    TasksItem(it, viewModel)
-                    Spacer(modifier = Modifier.size(12.dp))
-                }
+            items(filteredTasks, key = { it.id }) {
+                TasksItem(it, viewModel)
+                Spacer(modifier = Modifier.size(12.dp))
             }
         }
     }
