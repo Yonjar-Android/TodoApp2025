@@ -1,3 +1,31 @@
 <resources>
     <string name="app_name">TodoApp</string>
+    <string name="greetingStr">What\'s up, %s!</string>
+
+    <string name="editStr">Edit</string>
+    <string name="deleteStr">Delete</string>
+    <string name="cancelStr">Cancel</string>
+    <string name="saveStr">Save</string>
+    <string name="createStr">Create</string>
+
+    <string name="deleteTaskMsg">Do you want to delete the task?</string>
+    <string name="editTaskMsg">Edit task</string>
+    <string name="deleteCatMsg">Do you want to delete the category?</string>
+    <string name="editCatMsg">Edit category</string>
+
+    <string name="createTaskMsg">Create task</string>
+    <string name="createTaskNameMsg">Task name</string>
+    <string name="todaysTask">TODAY\'S TASKS</string>
+    <string name="tasksStr">tasks</string>
+
+    <string name="categorieStr">Category</string>
+    <string name="categoriesStr">CATEGORIES</string>
+
+    <string name="createCategorieName">Create category</string>
+    <string name="categorieNameMsg">Category name</string>
+
+    <string name="searchStr">Search…</string>
+
+    <string name="selectColorMsg">Select a color</string>
+    <string name="newTextMsg">New text</string>
 </resources>

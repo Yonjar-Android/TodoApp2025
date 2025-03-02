@@ -60,6 +60,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -242,7 +243,7 @@ fun MainContent(
             FirstIconRow(drawerState, onDrawerState, viewModel)
 
             Text(
-                "What's up, Juan!",
+                stringResource(R.string.greetingStr,"Juan"),
                 color = Color.White,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -327,7 +328,7 @@ fun FirstIconRow(
                     .weight(2f) // Ajusta el peso para centrar el TextField
                     .clip(RoundedCornerShape(20.dp))
                     .height(60.dp),
-                placeholder = { Text("Buscar...", color = Color.White) },
+                placeholder = { Text(stringResource(R.string.searchStr), color = Color.White) },
                 singleLine = true,
                 colors = androidx.compose.material3.TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -369,7 +370,7 @@ fun CategoriesRow(
             .padding(start = 24.dp)
     ) {
         Text(
-            "CATEGORIES",
+            stringResource(R.string.categoriesStr),
             color = cyanText,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
@@ -424,7 +425,7 @@ fun CategoriesItem(
                 .padding(24.dp)
         ) {
             Text(
-                text = "${categoryModel.pendingTasks} tasks",
+                text = "${categoryModel.pendingTasks} ${stringResource(R.string.tasksStr)}",
                 color = Color.LightGray,
                 fontSize = 16.sp
             )
@@ -468,7 +469,7 @@ fun TasksColumn(
 ) {
     Column(modifier = Modifier) {
         Text(
-            "TODAY'S TASKS",
+            stringResource(R.string.todaysTask),
             color = cyanText,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
@@ -530,7 +531,7 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel, c
                 Checkbox(
                     checked = checkValue,
                     onCheckedChange = {
-                        if (it == true) {
+                        if (it) {
                             SoundPlayer.playSound(context, R.raw.dingsound)
                         }
                         checkValue = it
@@ -610,7 +611,7 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel, c
                             )
                         },
                         onDismissDialog = { deleteDialogVisible = !deleteDialogVisible },
-                        editText = "¿Deseas eliminar la tarea?"
+                        editText = stringResource(R.string.deleteTaskMsg)
                     )
                 }
             }
@@ -639,7 +640,7 @@ fun EditTaskDialog(
                     containerColor = Color(0xFF2E7D32)
                 )
             ) {
-                Text("Guardar", color = Color.White)
+                Text(stringResource(R.string.saveStr), color = Color.White)
             }
         },
         dismissButton = {
@@ -649,12 +650,12 @@ fun EditTaskDialog(
                     containerColor = Color(0xFF455A64)
                 )
             ) {
-                Text("Cancelar", color = Color.White)
+                Text(stringResource(R.string.cancelStr), color = Color.White)
             }
         },
         title = {
             Text(
-                "Editar tarea",
+                stringResource(R.string.editTaskMsg),
                 color = Color.White,
                 fontWeight = FontWeight.Medium
             )
@@ -664,7 +665,7 @@ fun EditTaskDialog(
                 TextField(
                     value = editedText,
                     onValueChange = { editedText = it }, // Actualiza el estado con el nuevo texto
-                    label = { Text("Nuevo texto", fontSize = 14.sp) },
+                    label = { Text(stringResource(R.string.newTextMsg), fontSize = 14.sp) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
@@ -704,7 +705,7 @@ fun DeleteDialog(
                     containerColor = Color(0xFFC62828)
                 )
             ) {
-                Text("Eliminar")
+                Text(stringResource(R.string.deleteStr))
             }
         },
         dismissButton = {
@@ -714,7 +715,7 @@ fun DeleteDialog(
                     containerColor = Color(0xFF455A64)
                 )
             ) {
-                Text("Cancelar", color = Color.White)
+                Text(stringResource(R.string.cancelStr), color = Color.White)
             }
         },
         title = {
@@ -740,7 +741,7 @@ fun DropDownMenuTaskItem(
         onDismissRequest = { onVisibleChange(false) }
     ) {
         DropdownMenuItem(
-            text = { Text("Eliminar") },
+            text = { Text(stringResource(R.string.deleteStr)) },
             onClick = {
                 onVisibleChange(false)
                 onDelete()
@@ -748,7 +749,7 @@ fun DropDownMenuTaskItem(
         )
 
         DropdownMenuItem(
-            text = { Text("Editar") },
+            text = { Text(stringResource(R.string.editStr)) },
             onClick = {
                 onVisibleChange(false)
                 onEdit()

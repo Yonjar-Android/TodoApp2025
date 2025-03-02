@@ -29,8 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.todoapp.R
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.ui.theme.BlueBgTwo
@@ -56,14 +58,14 @@ fun TaskCreateScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Crear Tarea",
+                    text = stringResource(R.string.createTaskMsg),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 OutlinedTextField(
                     value = taskName,
                     onValueChange = { taskName = it },
-                    label = { Text("Nombre de la Tarea") },
+                    label = { Text(stringResource(R.string.createTaskNameMsg)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -73,7 +75,7 @@ fun TaskCreateScreen(
                 OutlinedTextField(
                     value = taskCategory,
                     onValueChange = { taskCategory = it },
-                    label = { Text("Categoria") },
+                    label = { Text(stringResource(R.string.categorieStr)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     readOnly = true,
@@ -97,7 +99,7 @@ fun TaskCreateScreen(
                         onClick = onDismiss,
                         colors = ButtonDefaults.buttonColors(containerColor = BlueBgTwo)
                     ) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.cancelStr))
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -111,7 +113,7 @@ fun TaskCreateScreen(
                         )
                         viewModel.createTask(task)
                     }, colors = ButtonDefaults.buttonColors(containerColor = BlueBgTwo)) {
-                        Text("Crear")
+                        Text(stringResource(R.string.createStr))
                     }
                 }
             }

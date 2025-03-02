@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -194,7 +195,7 @@ fun ItemCategory(
 
     if (deleteDialogVisible) {
         DeleteDialog(
-            editText = "¿Deseas eliminar la categoría?",
+            editText = stringResource(R.string.deleteCatMsg),
             onDelete = {
                 viewModel.deleteCategory(
                     CategoryMapper.fromCategoryCountTaskToCategoryModel(category)
@@ -264,7 +265,7 @@ fun IconRowCategories(
                 .weight(2f) // Ajusta el peso para centrar el TextField
                 .clip(RoundedCornerShape(20.dp))
                 .height(60.dp),
-            placeholder = { Text("Buscar...", color = Color.White) },
+            placeholder = { Text(stringResource(R.string.searchStr), color = Color.White) },
             singleLine = true,
             colors = androidx.compose.material3.TextFieldDefaults.colors(
                 focusedContainerColor = Color.Transparent,
@@ -301,7 +302,7 @@ fun DropDownMenuCategories(
         onDismissRequest = { onVisibleChange(false) }
     ) {
         DropdownMenuItem(
-            text = { Text("Eliminar") },
+            text = { Text(stringResource(R.string.deleteStr)) },
             onClick = {
                 onVisibleChange(false)
                 onDelete()
@@ -309,7 +310,7 @@ fun DropDownMenuCategories(
         )
 
         DropdownMenuItem(
-            text = { Text("Editar") },
+            text = { Text(stringResource(R.string.editStr)) },
             onClick = {
                 onVisibleChange(false)
                 onEdit()
@@ -341,7 +342,7 @@ fun CreateCategory(
                     containerColor = Color(0xFF2E7D32)
                 )
             ) {
-                Text("Guardar", color = Color.White)
+                Text(stringResource(R.string.saveStr), color = Color.White)
             }
         },
         dismissButton = {
@@ -351,12 +352,12 @@ fun CreateCategory(
                     containerColor = Color(0xFF455A64)
                 )
             ) {
-                Text("Cancelar", color = Color.White)
+                Text(stringResource(R.string.cancelStr), color = Color.White)
             }
         },
         title = {
             Text(
-                "Crear categoría",
+                stringResource(R.string.createCategorieName),
                 color = Color.White,
                 fontWeight = FontWeight.Medium
             )
@@ -366,7 +367,7 @@ fun CreateCategory(
                 TextField(
                     value = categoryName,
                     onValueChange = { categoryName = it },
-                    label = { Text("Nombre de categoría", fontSize = 14.sp) },
+                    label = { Text(stringResource(R.string.categorieNameMsg), fontSize = 14.sp) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
@@ -393,7 +394,7 @@ fun CreateCategory(
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Text(
-                        "Select a Color",
+                        stringResource(R.string.selectColorMsg),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White
@@ -453,7 +454,7 @@ fun EditCategoriesDialog(
                     containerColor = Color(0xFF2E7D32)
                 )
             ) {
-                Text("Guardar", color = Color.White)
+                Text(stringResource(R.string.saveStr), color = Color.White)
             }
         },
         dismissButton = {
@@ -463,12 +464,12 @@ fun EditCategoriesDialog(
                     containerColor = Color(0xFF455A64)
                 )
             ) {
-                Text("Cancelar", color = Color.White)
+                Text(stringResource(R.string.cancelStr), color = Color.White)
             }
         },
         title = {
             Text(
-                "Editar categoría",
+                stringResource(R.string.editCatMsg),
                 color = Color.White,
                 fontWeight = FontWeight.Medium
             )
@@ -478,7 +479,7 @@ fun EditCategoriesDialog(
                 TextField(
                     value = editedText,
                     onValueChange = { editedText = it },
-                    label = { Text("Nuevo texto", fontSize = 14.sp) },
+                    label = { Text(stringResource(R.string.newTextMsg), fontSize = 14.sp) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
@@ -505,7 +506,7 @@ fun EditCategoriesDialog(
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Text(
-                        "Select a Color",
+                        stringResource(R.string.selectColorMsg),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White
