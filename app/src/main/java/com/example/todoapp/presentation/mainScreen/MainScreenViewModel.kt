@@ -81,7 +81,7 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 taskRepository.deleteTask(taskModel)
-                _message.value = "Se eliminado una tarea"
+                _message.value = "Se ha eliminado una tarea"
 
             } catch (e: Exception) {
                 _message.value = e.message

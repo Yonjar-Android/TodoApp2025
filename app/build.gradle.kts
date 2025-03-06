@@ -89,6 +89,10 @@ dependencies {
 
     testImplementation(libs.mockk)
 
+    // Test coroutine testing
+
+    testImplementation(libs.kotlinx.coroutines.test)
+
     // Splash Screen
 
     implementation(libs.androidx.core.splashscreen)
