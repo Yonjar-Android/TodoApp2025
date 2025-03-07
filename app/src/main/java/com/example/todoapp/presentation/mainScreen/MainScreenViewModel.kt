@@ -6,7 +6,7 @@ import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
-import com.example.todoapp.data.repositories.TaskRepository
+import com.example.todoapp.data.repositories.ITaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: ITaskRepository
 ) :
     ViewModel() {
 
