@@ -20,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.todoapp.AndroidCustomRunner"
     }
 
     buildTypes {
@@ -85,6 +85,11 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
+    // For instrumented tests.
+    androidTestImplementation(libs.hilt.android.testing)
+    // ...with Kotlin.
+    kaptAndroidTest(libs.hilt.android.compiler)
+
     // Testing Mock
 
     testImplementation(libs.mockk)
@@ -100,6 +105,7 @@ dependencies {
     // Color picker
 
     implementation(libs.compose.colorpicker)
+    testImplementation(kotlin("test"))
 
 }
 
