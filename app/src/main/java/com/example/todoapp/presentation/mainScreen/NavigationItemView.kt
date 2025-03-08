@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.sp
 fun NavigationItemView(
     navigationItem: NavigationItem,
     selected: Boolean,
+    testTagMod: Modifier = Modifier,
     onClick: () -> Unit
 ){
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = testTagMod.fillMaxWidth()
             .clickable { onClick()
             }. padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,

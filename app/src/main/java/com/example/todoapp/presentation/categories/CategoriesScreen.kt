@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -82,6 +83,7 @@ fun CategoriesScreen(
                 .clickable(enabled = drawerState == CustomDrawerState.Opened) {
                     onDrawerState(CustomDrawerState.Closed)
                 }
+                .testTag("categoryScreen")
 
         ) {
             IconRowCategories(drawerState, onDrawerState, onSearch =  {

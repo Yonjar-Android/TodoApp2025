@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,7 +57,8 @@ fun CustomDrawer(
             .clip(RoundedCornerShape(24.dp))
             .fillMaxHeight()
             .fillMaxWidth(fraction = 1f)
-            .background(BlueBgTwo),
+            .background(BlueBgTwo)
+            .testTag("CustomDrawerMenu"),
         verticalArrangement = Arrangement.Center,
 
         ) {
@@ -112,6 +114,17 @@ fun CustomDrawer(
             Spacer(modifier = Modifier.size(30.dp))
 
             NavigationItem.entries.toTypedArray().take(4).forEach { navigationItem ->
+                if (navigationItem.name == "Categories"){
+                    NavigationItemView(
+                        testTagMod = Modifier.testTag("btnMenuCategory"),
+                        navigationItem = navigationItem,
+                        selected = navigationItem == selectedNavigationItem
+                    ) { onNavigationItemClick(navigationItem) }
+
+                    Spacer(modifier = Modifier.size(4.dp))
+                    return@forEach
+                }
+
                 NavigationItemView(
                     navigationItem = navigationItem,
                     selected = navigationItem == selectedNavigationItem

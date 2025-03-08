@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -272,7 +273,8 @@ fun MainContent(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 24.dp, bottom = 24.dp)
-                .size(64.dp),
+                .size(64.dp)
+                .testTag("btnAdd"),
             colors = ButtonDefaults.buttonColors(containerColor = PinkButton)
         ) {
             Text(
@@ -299,7 +301,9 @@ fun FirstIconRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = {
+        IconButton(
+            modifier = Modifier.testTag("btnMenuDrawer"),
+            onClick = {
             onDrawerState(drawerState.opposite())
         }) {
             Icon(
@@ -327,7 +331,8 @@ fun FirstIconRow(
                 modifier = Modifier
                     .weight(2f) // Ajusta el peso para centrar el TextField
                     .clip(RoundedCornerShape(20.dp))
-                    .height(60.dp),
+                    .height(60.dp)
+                    .testTag("tfSearch"),
                 placeholder = { Text(stringResource(R.string.searchStr), color = Color.White) },
                 singleLine = true,
                 colors = androidx.compose.material3.TextFieldDefaults.colors(
@@ -342,6 +347,7 @@ fun FirstIconRow(
             )
 
             IconFunc(
+                testTagMod = Modifier.testTag("btnSearch"),
                 size = 22.dp, idImage = R.drawable.search, iconDescription = "Search bar icon",
                 modifier = Modifier.padding(horizontal = 8.dp), funcClick = {
                     viewModel.taskSearch.value = searchQuery
@@ -567,8 +573,9 @@ fun TasksItem(taskItem: TaskWithCategoryColor, viewModel: MainScreenViewModel, c
 
             Box {
 
-
-                IconButton(modifier = Modifier.size(30.dp),
+                IconButton(modifier = Modifier
+                    .size(30.dp)
+                    .testTag("btnTaskOptions${taskItem.id}"),
                     onClick = {
                         isMenuVisible = true
                     }
@@ -627,11 +634,12 @@ fun EditTaskDialog(
 ) {
     var editedText by remember { mutableStateOf(currentText) }
 
-    AlertDialog(
+    AlertDialog(modifier = Modifier.testTag("screenUpdateTask"),
         containerColor = BlueBg,
         onDismissRequest = {},
         confirmButton = {
             Button(
+                modifier = Modifier.testTag("btnUpdateTask"),
                 onClick = {
                     onEdit(editedText)
                     onDismissDialog()
@@ -663,6 +671,7 @@ fun EditTaskDialog(
         text = {
             Column {
                 TextField(
+                    modifier = Modifier.testTag("tfTaskName"),
                     value = editedText,
                     onValueChange = { editedText = it }, // Actualiza el estado con el nuevo texto
                     label = { Text(stringResource(R.string.newTextMsg), fontSize = 14.sp) },
@@ -693,10 +702,12 @@ fun DeleteDialog(
     onDelete: () -> Unit
 ) {
     AlertDialog(
+        modifier = Modifier.testTag("screenDeleteTask"),
         containerColor = BlueBg,
         onDismissRequest = {},
         confirmButton = {
             Button(
+                modifier = Modifier.testTag("btnDelete"),
                 onClick = {
                     onDelete.invoke()
                     onDismissDialog.invoke()
@@ -710,6 +721,7 @@ fun DeleteDialog(
         },
         dismissButton = {
             Button(
+                modifier = Modifier.testTag("btnCancel"),
                 onClick = { onDismissDialog.invoke() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF455A64)
@@ -741,6 +753,7 @@ fun DropDownMenuTaskItem(
         onDismissRequest = { onVisibleChange(false) }
     ) {
         DropdownMenuItem(
+            modifier = Modifier.testTag("btnDeleteMenu"),
             text = { Text(stringResource(R.string.deleteStr)) },
             onClick = {
                 onVisibleChange(false)
@@ -749,6 +762,7 @@ fun DropDownMenuTaskItem(
         )
 
         DropdownMenuItem(
+            modifier = Modifier.testTag("btnEditMenu"),
             text = { Text(stringResource(R.string.editStr)) },
             onClick = {
                 onVisibleChange(false)
@@ -760,6 +774,7 @@ fun DropDownMenuTaskItem(
 
 @Composable
 fun IconFunc(
+    testTagMod: Modifier = Modifier,
     idImage: Int,
     size: Dp,
     iconDescription: String,
@@ -767,7 +782,9 @@ fun IconFunc(
     funcClick: () -> Unit
 ) {
     Box(modifier = modifier) {
-        IconButton(onClick = {
+        IconButton(
+            modifier = testTagMod,
+            onClick = {
             funcClick.invoke()
         }) {
             Icon(

@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -50,7 +51,8 @@ fun TaskCreateScreen(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier.testTag("screenCreateTask")
         ) {
             Column(
                 modifier = Modifier
@@ -66,7 +68,9 @@ fun TaskCreateScreen(
                     value = taskName,
                     onValueChange = { taskName = it },
                     label = { Text(stringResource(R.string.createTaskNameMsg)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("tfNameTask"),
                     singleLine = true,
                 )
 
@@ -104,7 +108,7 @@ fun TaskCreateScreen(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Button(onClick = {
+                    Button(modifier = Modifier.testTag("btnCreateTask"), onClick = {
                         onDismiss()
                         val task = TaskModel(
                             title = taskName,
@@ -132,8 +136,12 @@ fun CategoryDropDownMenu(
         modifier = Modifier
             .padding(16.dp)
     ) {
-        IconButton(onClick = { expanded = !expanded }) {
-            Icon(Icons.Default.ArrowDropDown, contentDescription = "More options")
+        IconButton(
+            modifier = Modifier.testTag("btnMenuIcon"),
+            onClick = { expanded = !expanded }) {
+            Icon(
+                Icons.Default.ArrowDropDown, contentDescription = "More options",
+            )
         }
         DropdownMenu(
             expanded = expanded,
@@ -141,10 +149,12 @@ fun CategoryDropDownMenu(
         ) {
             categories.forEach {
                 DropdownMenuItem(
+                    modifier = Modifier.testTag("category${it.id}"),
                     text = { Text(it.title) },
                     onClick = {
                         expanded = !expanded
                         categorySelected(it.title, it.id)
+
                     }
                 )
             }
