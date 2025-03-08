@@ -48,7 +48,7 @@ class MainTaskScreenKtTest {
     }
 
     @Test
-    fun openUpUpdateScreenAndUpdateATask(){
+    fun openUpUpdateScreenAndUpdateATask() {
         composeTestRule.setContent {
             TodoAppTheme {
                 MainTaskScreen(viewModel)
@@ -59,12 +59,13 @@ class MainTaskScreenKtTest {
         composeTestRule.onNodeWithTag("btnEditMenu").performClick()
         composeTestRule.onNodeWithTag("screenUpdateTask")
             .assertExists("La pantalla para editar tareas no se muestra")
-        composeTestRule.onNodeWithTag("tfTaskName").performTextInput("Comprar 3 litros de leche condensada")
+        composeTestRule.onNodeWithTag("tfTaskName")
+            .performTextInput("Comprar 3 litros de leche condensada")
         composeTestRule.onNodeWithTag("btnUpdateTask").performClick()
     }
 
     @Test
-    fun openUpDeleteScreenAndDeleteATask(){
+    fun openUpDeleteScreenAndDeleteATask() {
         composeTestRule.setContent {
             TodoAppTheme {
                 MainTaskScreen(viewModel)
@@ -86,7 +87,7 @@ class MainTaskScreenKtTest {
     }
 
     @Test
-    fun doSearchAndDeleteTask(){
+    fun doSearchAndDeleteTask() {
         composeTestRule.setContent {
             TodoAppTheme {
                 MainTaskScreen(viewModel)
@@ -97,16 +98,88 @@ class MainTaskScreenKtTest {
     }
 
     @Test
-    fun navigateToCategoriesScreen(){
+    fun navigateToCategoriesScreen() {
         composeTestRule.setContent {
             TodoAppTheme {
                 MainTaskScreen(viewModel)
             }
         }
         composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
-        composeTestRule.onNodeWithTag("CustomDrawerMenu").assertExists("No apareció el custom drawer")
+        composeTestRule.onNodeWithTag("CustomDrawerMenu")
+            .assertExists("No apareció el custom drawer")
         composeTestRule.onNodeWithTag("btnMenuCategory").performClick()
-        composeTestRule.onNodeWithTag("categoryScreen").assertExists("No cargó la pantalla de categorias")
+        composeTestRule.onNodeWithTag("categoryScreen")
+            .assertExists("No cargó la pantalla de categorias")
+    }
+
+    @Test
+    fun navigateToCategoriesScreenAndCreateCategory() {
+        composeTestRule.setContent {
+            TodoAppTheme {
+                MainTaskScreen(viewModel)
+            }
+        }
+        composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
+        composeTestRule.onNodeWithTag("CustomDrawerMenu")
+            .assertExists("No apareció el custom drawer")
+        composeTestRule.onNodeWithTag("btnMenuCategory").performClick()
+        composeTestRule.onNodeWithTag("categoryScreen")
+            .assertExists("No cargó la pantalla de categorias")
+        composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
+        composeTestRule.onNodeWithTag("btnCreate").performClick()
+        composeTestRule.onNodeWithTag("createCategoryDialog")
+            .assertExists("No cargó la pantalla para crear categorías")
+        composeTestRule.onNodeWithTag("tfCategory").performTextInput("Hobby")
+        composeTestRule.onNodeWithTag("btnCreateTask").performClick()
+    }
+
+    @Test
+    fun navigateToCategoriesScreenAndDeleteCategory() {
+        composeTestRule.setContent {
+            TodoAppTheme {
+                MainTaskScreen(viewModel)
+            }
+        }
+
+        composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
+        composeTestRule.onNodeWithTag("CustomDrawerMenu")
+            .assertExists("No apareció el custom drawer")
+        composeTestRule.onNodeWithTag("btnMenuCategory").performClick()
+        composeTestRule.onNodeWithTag("categoryScreen")
+            .assertExists("No cargó la pantalla de categorias")
+        composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
+        composeTestRule.onNodeWithTag("btnOptions1").performClick()
+        composeTestRule.onNodeWithTag("btnMenuDelete1").performClick()
+        composeTestRule.onNodeWithTag("screenDeleteTask")
+            .assertExists("No se muestra la pantalla para eliminar la tarea")
+        composeTestRule.onNodeWithTag("btnDelete").performClick()
+        composeTestRule.onNodeWithTag("screenDeleteTask")
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun navigateToCategoriesScreenAndEditCategory() {
+        composeTestRule.setContent {
+            TodoAppTheme {
+                MainTaskScreen(viewModel)
+            }
+        }
+
+        composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
+        composeTestRule.onNodeWithTag("CustomDrawerMenu")
+            .assertExists("No apareció el custom drawer")
+        composeTestRule.onNodeWithTag("btnMenuCategory").performClick()
+        composeTestRule.onNodeWithTag("categoryScreen")
+            .assertExists("No cargó la pantalla de categorias")
+        composeTestRule.onNodeWithTag("btnMenuDrawer").performClick()
+        composeTestRule.onNodeWithTag("btnOptions1").performClick()
+        composeTestRule.onNodeWithTag("btnMenuEdit1").performClick()
+        composeTestRule.onNodeWithTag("editCategoryScreen")
+            .assertExists("No se muestra la pantalla para editar la tarea")
+        composeTestRule.onNodeWithTag("tfEditCategory").performTextInput("Plata")
+        composeTestRule.onNodeWithTag("btnEdit").performClick()
+        composeTestRule.onNodeWithTag("editCategoryScreen")
+            .assertDoesNotExist()
     }
 }
 

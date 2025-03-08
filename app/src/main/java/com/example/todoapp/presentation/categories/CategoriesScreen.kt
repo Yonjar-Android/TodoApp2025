@@ -117,7 +117,8 @@ fun CategoriesScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 24.dp, bottom = 24.dp)
-                .size(64.dp),
+                .size(64.dp)
+                .testTag("btnCreate"),
             colors = ButtonDefaults.buttonColors(containerColor = PinkButton)
         ) {
             Text(
@@ -174,7 +175,8 @@ fun ItemCategory(
             // Ícono de tres puntos
             Box {
                 IconButton(
-                    modifier = Modifier.size(30.dp),
+                    modifier = Modifier.size(30.dp)
+                        .testTag("btnOptions${category.id}"),
                     onClick = { isMenuVisible = true }
                 ) {
                     Icon(
@@ -186,10 +188,12 @@ fun ItemCategory(
 
                 // Menú desplegable
                 DropDownMenuCategories(
+                    idCat = category.id,
                     isVisible = isMenuVisible,
                     onVisibleChange = { isMenuVisible = it },
                     onEdit = { editDialogVisible = true },
                     onDelete = { deleteDialogVisible = true }
+
                 )
             }
         }
@@ -243,7 +247,9 @@ fun IconRowCategories(
         verticalAlignment = Alignment.CenterVertically // Centra verticalmente todos los elementos del Row
     ) {
         // Ícono del menú (izquierda)
-        IconButton(onClick = {
+        IconButton(
+            modifier = Modifier.testTag("btnMenuDrawer"),
+            onClick = {
             onDrawerState(drawerState.opposite())
         }) {
             Icon(
@@ -293,6 +299,7 @@ fun IconRowCategories(
 
 @Composable
 fun DropDownMenuCategories(
+    idCat: Long,
     isVisible: Boolean,
     onVisibleChange: (Boolean) -> Unit,
     onDelete: () -> Unit,
@@ -304,6 +311,7 @@ fun DropDownMenuCategories(
         onDismissRequest = { onVisibleChange(false) }
     ) {
         DropdownMenuItem(
+            modifier = Modifier.testTag("btnMenuDelete$idCat"),
             text = { Text(stringResource(R.string.deleteStr)) },
             onClick = {
                 onVisibleChange(false)
@@ -312,6 +320,7 @@ fun DropDownMenuCategories(
         )
 
         DropdownMenuItem(
+            modifier = Modifier.testTag("btnMenuEdit$idCat"),
             text = { Text(stringResource(R.string.editStr)) },
             onClick = {
                 onVisibleChange(false)
@@ -332,10 +341,12 @@ fun CreateCategory(
 
 
     AlertDialog(
+        modifier = Modifier.testTag("createCategoryDialog"),
         containerColor = BlueBg,
         onDismissRequest = {},
         confirmButton = {
             Button(
+                modifier = Modifier.testTag("btnCreateTask"),
                 onClick = {
                     onCreateCategory(categoryName, colorChange.toArgb())
                     onDismissDialog()
@@ -367,6 +378,7 @@ fun CreateCategory(
         text = {
             Column {
                 TextField(
+                    modifier = Modifier.testTag("tfCategory"),
                     value = categoryName,
                     onValueChange = { categoryName = it },
                     label = { Text(stringResource(R.string.categorieNameMsg), fontSize = 14.sp) },
@@ -444,10 +456,12 @@ fun EditCategoriesDialog(
     var color by remember { mutableIntStateOf(currentColor) }
 
     AlertDialog(
+        modifier = Modifier.testTag("editCategoryScreen"),
         containerColor = BlueBg,
         onDismissRequest = {},
         confirmButton = {
             Button(
+                modifier = Modifier.testTag("btnEdit"),
                 onClick = {
                     onEdit(editedText, color)
                     onDismissDialog()
@@ -479,6 +493,7 @@ fun EditCategoriesDialog(
         text = {
             Column {
                 TextField(
+                    modifier = Modifier.testTag("tfEditCategory"),
                     value = editedText,
                     onValueChange = { editedText = it },
                     label = { Text(stringResource(R.string.newTextMsg), fontSize = 14.sp) },

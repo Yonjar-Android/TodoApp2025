@@ -8,16 +8,16 @@
       <SelectionState runConfigName="MainTaskScreenKtTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="screenChargeCorrectly()">
+      <SelectionState runConfigName="navigateToCategoriesScreen()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="openUpCreateScreenAndCreateTask()">
+      <SelectionState runConfigName="navigateToCategoriesScreenAndCreateCategory()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="openUpUpdateScreenAndUpdateATask()">
+      <SelectionState runConfigName="navigateToCategoriesScreenAndDeleteCategory()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="doSearchAndDeleteTask()">
+      <SelectionState runConfigName="navigateToCategoriesScreenAndEditCategory()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
