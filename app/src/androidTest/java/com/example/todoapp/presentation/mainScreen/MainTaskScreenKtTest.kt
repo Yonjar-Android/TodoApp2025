@@ -6,11 +6,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.example.todoapp.FakeRepository
 import com.example.todoapp.ui.theme.TodoAppTheme
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
 import org.junit.Test
 
-@HiltAndroidTest
 class MainTaskScreenKtTest {
 
     @get:Rule

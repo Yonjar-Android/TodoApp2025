@@ -1,7 +1,5 @@
 package com.example.todoapp.presentation.mainScreen
 
-import androidx.lifecycle.viewModelScope
-import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.repositories.MotherObjectRep
 import com.example.todoapp.data.repositories.TaskRepository
 import io.mockk.MockKAnnotations
