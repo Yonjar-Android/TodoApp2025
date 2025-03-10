@@ -6,6 +6,7 @@ import com.example.todoapp.data.mapper.CategoryMapper
 import com.example.todoapp.data.mapper.TaskMapper
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskWithCategoryColor
+import com.example.todoapp.utils.clock.Clock
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -30,35 +31,46 @@ class TaskRepositoryTest {
     @MockK
     private lateinit var categoryDao: CategoriesDao
 
+    @MockK
+    private lateinit var clock: Clock
+
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
         taskRepository = TaskRepository(
             taskDao = taskDao,
-            categoryDao = categoryDao
+            categoryDao = categoryDao,
+            clock = clock
         )
     }
 
     @Test
     fun `getTasksColor should return flow of tasks empty`() = runTest {
         // Given
+        val now = 1741618911104 // Valor fijo para las pruebas
+        val sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000)
+
         val expectedTasks = listOf<TaskWithCategoryColor>()
-        coEvery { taskDao.getTasksWithCategoryColor() } returns flowOf(expectedTasks)
+        coEvery { clock.currentTimeMillis() } returns now
+        coEvery { taskDao.getTasksWithCategoryColor(sevenDaysAgo) } returns flowOf(expectedTasks)
 
         // When
         val result = taskRepository.getTasksColor()
 
         // Then
         assertEquals(expectedTasks, result.first())
-        coVerify(exactly = 1) { taskDao.getTasksWithCategoryColor() }
+        coVerify(exactly = 1) { taskDao.getTasksWithCategoryColor(sevenDaysAgo) }
     }
 
     @Test
     fun `getTasksColor should return flow of tasks with category color`() = runTest {
+        val now = 1741618911104 // Valor fijo para las pruebas
+        val sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000)
         // Given
         val expectedTasks = MotherObjectRep.listOfTasks
 
-        coEvery { taskDao.getTasksWithCategoryColor() } returns flowOf(expectedTasks)
+        coEvery { clock.currentTimeMillis() } returns now
+        coEvery { taskDao.getTasksWithCategoryColor(sevenDaysAgo) } returns flowOf(expectedTasks)
 
         // When
         val result = taskRepository.getTasksColor()
@@ -66,16 +78,22 @@ class TaskRepositoryTest {
         // Then
 
         assertEquals(expectedTasks, result.first())
-        coVerify(exactly = 1) { taskDao.getTasksWithCategoryColor() }
+        coVerify(exactly = 1) { taskDao.getTasksWithCategoryColor(sevenDaysAgo) }
     }
 
     @Test
     fun `getTasksColor should emit multiple values`() = runTest {
+        val now = 1741618911104 // Valor fijo para las pruebas
+        val sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000)
         // Given
         val firstTasks = listOf<TaskWithCategoryColor>()
         val secondTasks = MotherObjectRep.listOfTasks
 
-        coEvery { taskDao.getTasksWithCategoryColor() } returns flowOf(firstTasks, secondTasks)
+        coEvery { clock.currentTimeMillis() } returns now
+        coEvery { taskDao.getTasksWithCategoryColor(sevenDaysAgo) } returns flowOf(
+            firstTasks,
+            secondTasks
+        )
 
         // When
         val result = taskRepository.getTasksColor()
@@ -83,7 +101,7 @@ class TaskRepositoryTest {
         // Then
         assertEquals(firstTasks, result.first())  // Primero se emite la lista vacía
         assertEquals(secondTasks, result.toList()[1])  // Luego se emite la lista con tareas
-        coVerify(exactly = 1) { taskDao.getTasksWithCategoryColor() }
+        coVerify(exactly = 1) { taskDao.getTasksWithCategoryColor(sevenDaysAgo) }
     }
 
     @Test

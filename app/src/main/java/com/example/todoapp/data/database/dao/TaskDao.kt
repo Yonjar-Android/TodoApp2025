@@ -27,12 +27,15 @@ interface TaskDao {
     @Query("DELETE FROM tasks")
     suspend fun deleteAllTasks()
 
-    @Query("""
-        SELECT t.id, t.title, t.completed, t.categoryId, t.createdDate, 
-               t.completedDate, c.color as categoryColor
-        FROM tasks t
-        INNER JOIN categories c ON t.categoryId = c.id
-        ORDER BY t.completed ASC, t.createdDate DESC
-    """)
-    fun getTasksWithCategoryColor(): Flow<List<TaskWithCategoryColor>>
+    @Query(
+        """
+    SELECT t.id, t.title, t.completed, t.categoryId, t.createdDate, 
+           t.completedDate, c.color as categoryColor
+    FROM tasks t
+    INNER JOIN categories c ON t.categoryId = c.id
+    WHERE t.createdDate >= :sevenDaysAgo
+    ORDER BY t.completed ASC, t.createdDate DESC
+"""
+    )
+    fun getTasksWithCategoryColor(sevenDaysAgo: Long): Flow<List<TaskWithCategoryColor>>
 }

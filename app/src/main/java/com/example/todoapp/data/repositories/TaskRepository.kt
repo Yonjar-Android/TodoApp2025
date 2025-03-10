@@ -8,17 +8,20 @@ import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
+import com.example.todoapp.utils.clock.Clock
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 
-open class TaskRepository @Inject constructor(
+class TaskRepository @Inject constructor(
     private val taskDao: TaskDao,
-    private val categoryDao: CategoriesDao
+    private val categoryDao: CategoriesDao,
+    private val clock: Clock
 ):ITaskRepository {
 
     override fun getTasksColor(): Flow<List<TaskWithCategoryColor>> {
-        return taskDao.getTasksWithCategoryColor()
+        val sevenDaysAgo = clock.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
+        return taskDao.getTasksWithCategoryColor(sevenDaysAgo)
     }
 
     override suspend fun createTask(task: TaskModel) {

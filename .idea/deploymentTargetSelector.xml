@@ -8,9 +8,6 @@
       <SelectionState runConfigName="MainTaskScreenKtTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="navigateToCategoriesScreenAndEditCategory()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="screenChargeCorrectly()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
