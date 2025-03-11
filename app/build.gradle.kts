@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -32,6 +33,14 @@ android {
             )
         }
     }
+
+    packaging{
+        resources.excludes.add("META-INF/LICENSE.md") // Excluye el archivo LICENSE.md
+        resources.excludes.add("META-INF/LICENSE-notice.md") // Excluye otros archivos de licencia si es necesario
+        resources.excludes.add("META-INF/AL2.0") // Excluye archivos de licencia adicionales
+        resources.excludes.add("META-INF/LGPL2.1") // Excluye archivos de licencia adicionales
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

@@ -1,7 +1,9 @@
 package com.example.todoapp.presentation.mainScreen
 
+import com.example.todoapp.R
 import com.example.todoapp.data.repositories.MotherObjectRep
 import com.example.todoapp.data.repositories.TaskRepository
+import com.example.todoapp.utils.ResourceProvider
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -25,6 +27,9 @@ class MainScreenViewModelTest {
     @MockK
     private lateinit var taskRepository: TaskRepository
 
+    @MockK
+    private lateinit var resourceProvider: ResourceProvider
+
     private val testDispatcher = StandardTestDispatcher()
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,7 +41,7 @@ class MainScreenViewModelTest {
         coEvery { taskRepository.getTasksColor() } returns flowOf(emptyList())
         coEvery { taskRepository.getCategoriesCountTask() } returns flowOf(emptyList())
 
-        mainScreenViewModel = MainScreenViewModel(taskRepository)
+        mainScreenViewModel = MainScreenViewModel(taskRepository,resourceProvider)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,6 +54,9 @@ class MainScreenViewModelTest {
     fun `createTask should update message and isLoading state`() = runTest {
         // Given
         val taskModel = MotherObjectRep.taskModel
+        val expectedMessage = "Se ha creado una nueva tarea"
+
+        coEvery { resourceProvider.getString(R.string.newTaskCreatedMsg) } returns expectedMessage
         coEvery { taskRepository.createTask(taskModel) } returns Unit
 
         // When
@@ -59,8 +67,8 @@ class MainScreenViewModelTest {
 
         // Then
         coVerify(exactly = 1) { taskRepository.createTask(taskModel) }
-        assert(mainScreenViewModel.message.first() == "Se ha creado una nueva tarea")
-        assert(mainScreenViewModel.isLoading.first() == false) // Ahora pasa
+        assert(mainScreenViewModel.message.first() == expectedMessage)
+        assert(mainScreenViewModel.isLoading.first() == false)
     }
 
     @Test
@@ -123,6 +131,9 @@ class MainScreenViewModelTest {
     fun `deleteTask should update message and isLoading state`() = runTest {
         // Given
         val taskModel = MotherObjectRep.taskModel
+        val exceptionMessage = "Se ha eliminado una tarea"
+
+        coEvery { resourceProvider.getString(R.string.newTaskDeletedMsg) } returns exceptionMessage
         coEvery { taskRepository.deleteTask(taskModel) } returns Unit
 
         // When
@@ -133,8 +144,8 @@ class MainScreenViewModelTest {
 
         // Then
         coVerify(exactly = 1) { taskRepository.deleteTask(taskModel) }
-        assert(mainScreenViewModel.message.first() == "Se ha eliminado una tarea")
-        assert(mainScreenViewModel.isLoading.first() == false) // Ahora pasa
+        assert(mainScreenViewModel.message.first() == exceptionMessage)
+        assert(mainScreenViewModel.isLoading.first() == false)
     }
 
     @Test
@@ -160,6 +171,9 @@ class MainScreenViewModelTest {
     fun `createCategory should update message and isLoading state`() = runTest {
         // Given
         val categoryModel = MotherObjectRep.categoryModel
+        val expectedMessage = "Se ha creado una categoría"
+
+        coEvery { resourceProvider.getString(R.string.newCategoryCreatedMsg) } returns expectedMessage
         coEvery { taskRepository.createCategory(categoryModel) } returns Unit
 
         // When
@@ -170,8 +184,8 @@ class MainScreenViewModelTest {
 
         // Then
         coVerify(exactly = 1) { taskRepository.createCategory(categoryModel) }
-        assert(mainScreenViewModel.message.first() == "Se ha creado una nueva categoria")
-        assert(mainScreenViewModel.isLoading.first() == false) // Ahora pasa
+        assert(mainScreenViewModel.message.first() == expectedMessage)
+        assert(mainScreenViewModel.isLoading.first() == false)
     }
 
     @Test
@@ -234,6 +248,9 @@ class MainScreenViewModelTest {
     fun `deleteCategory should update message and isLoading state`() = runTest {
         // Given
         val categoryModel = MotherObjectRep.categoryModel
+        val expectedMessage = "Se ha eliminado una categoría"
+
+        coEvery { resourceProvider.getString(R.string.newCategoryDeletedMsg) } returns expectedMessage
         coEvery { taskRepository.deleteCategory(categoryModel) } returns Unit
 
         // When
@@ -244,8 +261,8 @@ class MainScreenViewModelTest {
 
         // Then
         coVerify(exactly = 1) { taskRepository.deleteCategory(categoryModel) }
-        assert(mainScreenViewModel.message.first() == "Se ha eliminado la categoria")
-        assert(mainScreenViewModel.isLoading.first() == false) // Ahora pasa
+        assert(mainScreenViewModel.message.first() == expectedMessage)
+        assert(mainScreenViewModel.isLoading.first() == false)
     }
 
     @Test

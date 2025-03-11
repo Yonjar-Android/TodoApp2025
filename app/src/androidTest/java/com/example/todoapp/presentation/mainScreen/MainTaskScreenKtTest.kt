@@ -5,15 +5,17 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.example.todoapp.FakeRepository
+import com.example.todoapp.FakeResourceProvider
 import com.example.todoapp.ui.theme.TodoAppTheme
 import org.junit.Rule
 import org.junit.Test
 
 class MainTaskScreenKtTest {
 
+
     @get:Rule
     val composeTestRule = createComposeRule()
-    val viewModel = MainScreenViewModel(FakeRepository())
+    val viewModel = MainScreenViewModel(FakeRepository(), FakeResourceProvider())
 
     @Test
     fun screenChargeCorrectly() {

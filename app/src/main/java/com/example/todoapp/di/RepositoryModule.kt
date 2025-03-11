@@ -36,7 +36,7 @@ object RepositoryModule {
     }
 
     @Provides
-    fun provideResourceProvider(@ApplicationContext context: Context): ResourceProvider {
+    fun provideResourceProvider(@ApplicationContext context: Context): IResourceProvider {
         return ResourceProvider(context)
     }
 
