@@ -1,5 +1,7 @@
 package com.example.todoapp.presentation.categories
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +61,7 @@ import com.example.todoapp.presentation.mainScreen.MainScreenViewModel
 import com.example.todoapp.ui.theme.BlueBg
 import com.example.todoapp.ui.theme.BlueBgTwo
 import com.example.todoapp.ui.theme.PinkButton
+import com.example.todoapp.utils.GetStringObject
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -69,7 +72,8 @@ fun CategoriesScreen(
     drawerState: CustomDrawerState,
     onDrawerState: (CustomDrawerState) -> Unit,
     categories: List<CategoryWithTaskCount>,
-    viewModel: MainScreenViewModel
+    viewModel: MainScreenViewModel,
+    context: Context
 ) {
 
     var createDialogVisible by remember { mutableStateOf(false) }
@@ -86,10 +90,10 @@ fun CategoriesScreen(
                 .testTag("categoryScreen")
 
         ) {
-            IconRowCategories(drawerState, onDrawerState, onSearch =  {
-                if (it.isEmpty()){
+            IconRowCategories(drawerState, onDrawerState, onSearch = {
+                if (it.isEmpty()) {
                     viewModel.categorySearch.value = null
-                } else{
+                } else {
                     viewModel.categorySearch.value = it
                 }
 
@@ -102,7 +106,7 @@ fun CategoriesScreen(
                     categorySearch == null || it.title.lowercase().contains(categorySearch!!)
                 }
 
-                items(filteredCategories, key = {cat -> cat.id}) {
+                items(filteredCategories, key = { cat -> cat.id }) {
                     ItemCategory(it, viewModel = viewModel)
 
                     Spacer(modifier = Modifier.size(8.dp))
@@ -132,6 +136,7 @@ fun CategoriesScreen(
 
     if (createDialogVisible) {
         CreateCategory(
+            context = context,
             onCreateCategory = { categoryName, color ->
                 viewModel.createCategory(
                     CategoryModel(title = categoryName, color = color)
@@ -175,7 +180,8 @@ fun ItemCategory(
             // Ícono de tres puntos
             Box {
                 IconButton(
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier
+                        .size(30.dp)
                         .testTag("btnOptions${category.id}"),
                     onClick = { isMenuVisible = true }
                 ) {
@@ -250,8 +256,8 @@ fun IconRowCategories(
         IconButton(
             modifier = Modifier.testTag("btnMenuDrawer"),
             onClick = {
-            onDrawerState(drawerState.opposite())
-        }) {
+                onDrawerState(drawerState.opposite())
+            }) {
             Icon(
                 modifier = Modifier
                     .size(22.dp)
@@ -291,7 +297,7 @@ fun IconRowCategories(
             idImage = R.drawable.search,
             iconDescription = "Search bar icon",
             funcClick = {
-                    onSearch(searchQuery.trim().lowercase())
+                onSearch(searchQuery.trim().lowercase())
             }
         )
     }
@@ -334,6 +340,7 @@ fun DropDownMenuCategories(
 fun CreateCategory(
     onDismissDialog: () -> Unit,
     onCreateCategory: (String, Int) -> Unit,
+    context: Context
 ) {
     var categoryName by remember { mutableStateOf("") }
 
@@ -348,6 +355,14 @@ fun CreateCategory(
             Button(
                 modifier = Modifier.testTag("btnCreateTask"),
                 onClick = {
+                    if (categoryName.isEmpty()) {
+                            Toast.makeText(
+                                context, GetStringObject.getStringResource(context,R.string.categoriesCreationMsg),
+                                Toast.LENGTH_SHORT
+                        ).show()
+                        return@Button
+                    }
+
                     onCreateCategory(categoryName, colorChange.toArgb())
                     onDismissDialog()
                 },

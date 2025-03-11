@@ -200,7 +200,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                     drawerState = drawerState,
                     onDrawerState = { drawerState = it },
                     categories = categories,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    context = context
                 )
             }
         }
@@ -209,6 +210,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
     if (showCreateTaskScreen) {
         TaskCreateScreen(categories = categories,
             viewModel = viewModel,
+            contexts = context,
             onDismiss = { showCreateTaskScreen = false })
     }
 

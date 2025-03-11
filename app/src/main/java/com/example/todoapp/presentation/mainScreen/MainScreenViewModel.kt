@@ -2,11 +2,13 @@ package com.example.todoapp.presentation.mainScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todoapp.R
 import com.example.todoapp.data.models.CategoryModel
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
 import com.example.todoapp.data.repositories.ITaskRepository
+import com.example.todoapp.utils.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val taskRepository: ITaskRepository
+    private val taskRepository: ITaskRepository,
+    private val resourceProvider: ResourceProvider
 ) :
     ViewModel() {
 
@@ -53,7 +56,7 @@ class MainScreenViewModel @Inject constructor(
             try {
                 taskRepository.createTask(taskModel)
 
-                _message.value = "Se ha creado una nueva tarea"
+                _message.value = resourceProvider.getString(R.string.newTaskCreatedMsg)
 
             } catch (e: Exception) {
                 _message.value = e.message
@@ -81,7 +84,7 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 taskRepository.deleteTask(taskModel)
-                _message.value = "Se ha eliminado una tarea"
+                _message.value = resourceProvider.getString(R.string.newTaskDeletedMsg)
 
             } catch (e: Exception) {
                 _message.value = e.message
@@ -96,7 +99,7 @@ class MainScreenViewModel @Inject constructor(
                 taskRepository.createCategory(categoryModel)
 
                 _message.update {
-                    "Se ha creado una nueva categoria"
+                    resourceProvider.getString(R.string.newCategoryCreatedMsg)
                 }
             } catch (e: Exception) {
                 _message.update {
@@ -127,7 +130,7 @@ class MainScreenViewModel @Inject constructor(
                 taskRepository.deleteCategory(categoryModel)
 
                 _message.update {
-                    "Se ha eliminado la categoria"
+                    resourceProvider.getString(R.string.newCategoryDeletedMsg)
                 }
             } catch (e: Exception) {
                 _message.update {

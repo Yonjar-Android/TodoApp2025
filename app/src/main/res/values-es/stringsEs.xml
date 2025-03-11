@@ -29,4 +29,14 @@
 
     <string name="selectColorMsg">Selecciona un color</string>
     <string name="newTextMsg">Nuevo texto</string>
+
+    <string name="categoriesCreationMsg">Agrega el nombre de la categoría</string>
+    <string name="taskCreationMsg">Agregue un nombre a la tarea</string>
+    <string name="chooseCategoryMsg">Elija una categoría</string>
+
+    <string name="newTaskCreatedMsg">Se ha creado una nueva tarea</string>
+    <string name="newCategoryCreatedMsg">Se ha creado una nueva categoría</string>
+
+    <string name="newTaskDeletedMsg">Tarea eliminada con éxito</string>
+    <string name="newCategoryDeletedMsg">Categoría eliminada con éxito</string>
 </resources>

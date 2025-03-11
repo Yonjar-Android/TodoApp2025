@@ -28,4 +28,14 @@
 
     <string name="selectColorMsg">Select a color</string>
     <string name="newTextMsg">New text</string>
+
+    <string name="categoriesCreationMsg">Add a category name</string>
+    <string name="taskCreationMsg">Add a task name</string>
+    <string name="chooseCategoryMsg">Choose a category</string>
+
+    <string name="newTaskCreatedMsg">Task created successfully</string>
+    <string name="newCategoryCreatedMsg">Category created successfully</string>
+
+    <string name="newTaskDeletedMsg">Task deleted successfully</string>
+    <string name="newCategoryDeletedMsg">Category deleted successfully</string>
 </resources>

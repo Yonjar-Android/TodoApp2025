@@ -1,5 +1,7 @@
 package com.example.todoapp.presentation.mainScreen
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,12 +39,14 @@ import com.example.todoapp.R
 import com.example.todoapp.data.models.CategoryWithTaskCount
 import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.ui.theme.BlueBgTwo
+import com.example.todoapp.utils.GetStringObject
 
 @Composable
 fun TaskCreateScreen(
     categories: List<CategoryWithTaskCount>,
     viewModel: MainScreenViewModel,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    contexts: Context
 ) {
     var taskName by remember { mutableStateOf("") }
     var taskCategory by remember { mutableStateOf("") }
@@ -109,13 +113,31 @@ fun TaskCreateScreen(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Button(modifier = Modifier.testTag("btnCreateTask"), onClick = {
-                        onDismiss()
+                        if (taskName.trim().isEmpty()) {
+                            Toast.makeText(
+                                contexts,
+                                GetStringObject.getStringResource(contexts,R.string.createTaskMsg),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
+                        if (categoryId == 0L) {
+                            Toast.makeText(
+                                contexts,
+                                GetStringObject.getStringResource(contexts,R.string.chooseCategoryMsg),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
+
                         val task = TaskModel(
                             title = taskName,
                             categoryId = categoryId,
                             createdDate = System.currentTimeMillis(),
                         )
                         viewModel.createTask(task)
+
+                        onDismiss()
                     }, colors = ButtonDefaults.buttonColors(containerColor = BlueBgTwo)) {
                         Text(stringResource(R.string.createStr))
                     }
@@ -161,3 +183,4 @@ fun CategoryDropDownMenu(
         }
     }
 }
+
