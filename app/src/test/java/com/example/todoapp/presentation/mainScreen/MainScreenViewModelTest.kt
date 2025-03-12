@@ -40,6 +40,7 @@ class MainScreenViewModelTest {
         Dispatchers.setMain(testDispatcher)
         coEvery { taskRepository.getTasksColor() } returns flowOf(emptyList())
         coEvery { taskRepository.getCategoriesCountTask() } returns flowOf(emptyList())
+        coEvery { taskRepository.getCompletionPercentageLastSevenDays() } returns flowOf(emptyList())
 
         mainScreenViewModel = MainScreenViewModel(taskRepository,resourceProvider)
     }

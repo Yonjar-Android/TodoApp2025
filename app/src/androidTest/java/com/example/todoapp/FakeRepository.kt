@@ -55,4 +55,8 @@ class FakeRepository: ITaskRepository {
         categoriesToAdd.remove(category)
     }
 
+    override fun getCompletionPercentageLastSevenDays(): Flow<List<Double>> {
+        return flowOf(listOf())
+    }
+
 }
