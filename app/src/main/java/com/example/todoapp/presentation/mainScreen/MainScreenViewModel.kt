@@ -39,6 +39,13 @@ class MainScreenViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    val percentageOfTaskCompleted: StateFlow<List<Double>> = taskRepository.getCompletionPercentageLastSevenDays()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     var categoryId = MutableStateFlow<Long?>(null)
     var taskSearch = MutableStateFlow<String?>(null)
     var categorySearch = MutableStateFlow<String?>(null)

@@ -23,4 +23,6 @@ interface ITaskRepository {
     suspend fun updateCategory(category: CategoryModel)
 
     suspend fun deleteCategory(category: CategoryModel)
+
+    fun getCompletionPercentageLastSevenDays(): Flow<List<Double>>
 }

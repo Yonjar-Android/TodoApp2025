@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,8 +53,16 @@ import ir.ehsannarmani.compose_charts.models.ZeroLineProperties
 fun CustomDrawer(
     selectedNavigationItem: NavigationItem,
     onNavigationItemClick: (NavigationItem) -> Unit,
+    listTaskPercentage: List<Double>,
     onCloseClick: () -> Unit
 ) {
+    val listOfValues = remember { mutableStateListOf(0.0) }
+
+    LaunchedEffect(listTaskPercentage) {
+        listOfValues.clear()
+        listTaskPercentage.forEach { listOfValues.add(it) }
+    }
+
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(24.dp))
@@ -88,9 +99,12 @@ fun CustomDrawer(
 
             Column {
 
-                Box(modifier = Modifier.size(135.dp)
-                    .clip(CircleShape)
-                    .background(Color.Magenta), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .size(135.dp)
+                        .clip(CircleShape)
+                        .background(Color.Magenta), contentAlignment = Alignment.Center
+                ) {
                     Image(
                         modifier = Modifier
                             .size(130.dp)
@@ -114,7 +128,7 @@ fun CustomDrawer(
             Spacer(modifier = Modifier.size(30.dp))
 
             NavigationItem.entries.toTypedArray().take(4).forEach { navigationItem ->
-                if (navigationItem.name == "Categories"){
+                if (navigationItem.name == "Categories") {
                     NavigationItemView(
                         testTagMod = Modifier.testTag("btnMenuCategory"),
                         navigationItem = navigationItem,
@@ -138,10 +152,11 @@ fun CustomDrawer(
                     navigationItem = navigationItem,
                     selected = false
                 ) {
-                    when(navigationItem){
+                    when (navigationItem) {
                         NavigationItem.Menu -> {
                             onNavigationItemClick(NavigationItem.Menu)
                         }
+
                         NavigationItem.Categories -> {
                             onNavigationItemClick(NavigationItem.Categories)
 
@@ -160,12 +175,14 @@ fun CustomDrawer(
 
             Column() {
                 LineChart(
-                    modifier = Modifier.fillMaxWidth().fillMaxHeight(fraction = 0.4f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(fraction = 0.4f),
                     data = remember {
                         listOf(
                             Line(
                                 label = "",
-                                values = listOf(28.0, 41.0, 5.0, 10.0, 35.0),
+                                values = listOfValues,
                                 color = SolidColor(Color.Magenta),
                                 firstGradientFillColor = null,
                                 secondGradientFillColor = Color.Transparent,
@@ -182,19 +199,48 @@ fun CustomDrawer(
                     labelProperties = LabelProperties(enabled = false),
                     indicatorProperties = HorizontalIndicatorProperties(enabled = false),
                     zeroLineProperties = ZeroLineProperties(enabled = false),
-                    labelHelperProperties = LabelHelperProperties(enabled = false)
-                    , dividerProperties = DividerProperties(enabled = false)
+                    labelHelperProperties = LabelHelperProperties(enabled = false),
+                    dividerProperties = DividerProperties(enabled = false)
                 )
 
                 Spacer(modifier = Modifier.size(4.dp))
 
-                Text("Good", color = cyanText)
+                var consPercent = listOfValues.sum() / listOfValues.size
+
+                when (consPercent) {
+                    in 0.0..30.0 -> {
+                        Text(stringResource(R.string.consHorrible), color = cyanText)
+                    }
+
+                    in 30.1..50.0 -> {
+                        Text(stringResource(R.string.consDecent), color = cyanText)
+                    }
+
+                    in 50.1..70.0 -> {
+                        Text(stringResource(R.string.consGood), color = cyanText)
+                    }
+
+                    in 70.1..95.0 -> {
+                        Text(stringResource(R.string.consExcellent), color = cyanText)
+                    }
+
+                    in 95.1..100.0 -> {
+                        Text(stringResource(R.string.consPerfect), color = cyanText)
+                    }
+
+                    else -> {
+                        Text("No Data Yet", color = cyanText)
+                    }
+                }
+
 
                 Spacer(modifier = Modifier.size(4.dp))
 
-                Text("Consistency", color = Color.White,
+                Text(
+                    stringResource(R.string.consText), color = Color.White,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold)
+                    fontWeight = FontWeight.SemiBold
+                )
             }
 
         }

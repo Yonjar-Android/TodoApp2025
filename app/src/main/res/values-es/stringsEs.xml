@@ -39,4 +39,11 @@
 
     <string name="newTaskDeletedMsg">Tarea eliminada con éxito</string>
     <string name="newCategoryDeletedMsg">Categoría eliminada con éxito</string>
+
+    <string name="consText">Consistencia</string>
+    <string name="consHorrible">Horrible</string>
+    <string name="consDecent">Decente</string>
+    <string name="consGood">Buena</string>
+    <string name="consExcellent">Excelente</string>
+    <string name="consPerfect">Perfecta</string>
 </resources>

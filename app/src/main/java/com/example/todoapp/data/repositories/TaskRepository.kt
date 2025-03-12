@@ -10,6 +10,7 @@ import com.example.todoapp.data.models.TaskModel
 import com.example.todoapp.data.models.TaskWithCategoryColor
 import com.example.todoapp.utils.clock.Clock
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 
@@ -17,7 +18,7 @@ class TaskRepository @Inject constructor(
     private val taskDao: TaskDao,
     private val categoryDao: CategoriesDao,
     private val clock: Clock
-):ITaskRepository {
+) : ITaskRepository {
 
     override fun getTasksColor(): Flow<List<TaskWithCategoryColor>> {
         val sevenDaysAgo = clock.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
@@ -59,5 +60,13 @@ class TaskRepository @Inject constructor(
         val categoryToDelete = CategoryMapper.toCategoryRoomModel(category)
         categoryDao.deleteCategory(categoryToDelete)
 
+    }
+
+    override fun getCompletionPercentageLastSevenDays(): Flow<List<Double>> {
+        val sevenDaysAgo = clock.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
+        return taskDao.getCompletionPercentageLastSevenDays(sevenDaysAgo)
+            .map { list ->
+                list.map { it.completionPercentage }
+            }
     }
 }

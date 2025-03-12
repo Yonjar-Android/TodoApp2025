@@ -101,6 +101,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
 
     val categories by viewModel.categories.collectAsState()
 
+    val taskCompletedPercentage by viewModel.percentageOfTaskCompleted.collectAsState()
+
     val categoryId by viewModel.categoryId.collectAsState()
 
     val taskSearch by viewModel.taskSearch.collectAsState()
@@ -166,6 +168,7 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                     else -> navController.navigate("mainContent")
                 }
             },
+            listTaskPercentage = taskCompletedPercentage,
             onCloseClick = {
                 drawerState = CustomDrawerState.Closed
             }
