@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -20,7 +21,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.todoapp.AndroidCustomRunner"
     }
 
     buildTypes {
@@ -32,6 +33,14 @@ android {
             )
         }
     }
+
+    packaging{
+        resources.excludes.add("META-INF/LICENSE.md") // Excluye el archivo LICENSE.md
+        resources.excludes.add("META-INF/LICENSE-notice.md") // Excluye otros archivos de licencia si es necesario
+        resources.excludes.add("META-INF/AL2.0") // Excluye archivos de licencia adicionales
+        resources.excludes.add("META-INF/LGPL2.1") // Excluye archivos de licencia adicionales
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -54,6 +63,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,10 +72,16 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
+    // Gráficos
+    implementation (libs.compose.charts)
+
     // Room (Base de datos y persistencia de datos)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.room.ktx)
 
     // optional - Test helpers
     testImplementation(libs.androidx.room.testing)
@@ -78,13 +94,27 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
+    // For instrumented tests.
+    androidTestImplementation(libs.hilt.android.testing)
+    // ...with Kotlin.
+    kaptAndroidTest(libs.hilt.android.compiler)
+
     // Testing Mock
 
     testImplementation(libs.mockk)
 
+    // Test coroutine testing
+
+    testImplementation(libs.kotlinx.coroutines.test)
+
     // Splash Screen
 
     implementation(libs.androidx.core.splashscreen)
+
+    // Color picker
+
+    implementation(libs.compose.colorpicker)
+    testImplementation(kotlin("test"))
 
 }
 

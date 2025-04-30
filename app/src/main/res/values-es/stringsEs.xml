@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TodoApp</string>
+
+    <string name="greetingStr">¿Qué tal, %s!</string>
+    <string name="editStr">Editar</string>
+    <string name="deleteStr">Eliminar</string>
+    <string name="cancelStr">Cancelar</string>
+    <string name="saveStr">Guardar</string>
+    <string name="createStr">Crear</string>
+
+    <string name="deleteTaskMsg">¿Deseas eliminar la tarea?</string>
+    <string name="editTaskMsg">Editar tarea</string>
+    <string name="deleteCatMsg">¿Deseas eliminar la categoría?</string>
+    <string name="editCatMsg">Editar categoría</string>
+
+    <string name="createTaskMsg">Crear tarea</string>
+    <string name="createTaskNameMsg">Nombre de la tarea</string>
+    <string name="todaysTask">TAREAS DE HOY</string>
+    <string name="tasksStr">tareas</string>
+
+    <string name="categorieStr">Categoría</string>
+    <string name="categoriesStr">CATEGORÍAS</string>
+
+    <string name="createCategorieName">Crear categoría</string>
+    <string name="categorieNameMsg">Nombre de categoría</string>
+
+    <string name="searchStr">Buscar…</string>
+
+    <string name="selectColorMsg">Selecciona un color</string>
+    <string name="newTextMsg">Nuevo texto</string>
+
+    <string name="categoriesCreationMsg">Agrega el nombre de la categoría</string>
+    <string name="taskCreationMsg">Agregue un nombre a la tarea</string>
+    <string name="chooseCategoryMsg">Elija una categoría</string>
+
+    <string name="newTaskCreatedMsg">Se ha creado una nueva tarea</string>
+    <string name="newCategoryCreatedMsg">Se ha creado una nueva categoría</string>
+
+    <string name="newTaskDeletedMsg">Tarea eliminada con éxito</string>
+    <string name="newCategoryDeletedMsg">Categoría eliminada con éxito</string>
+
+    <string name="consText">Consistencia</string>
+    <string name="consHorrible">Horrible</string>
+    <string name="consDecent">Decente</string>
+    <string name="consGood">Buena</string>
+    <string name="consExcellent">Excelente</string>
+    <string name="consPerfect">Perfecta</string>
+</resources>
