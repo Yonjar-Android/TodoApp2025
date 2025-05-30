@@ -126,10 +126,9 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
     var selectedNavigationItem by remember { mutableStateOf(NavigationItem.Menu) }
 
     val configuration = LocalConfiguration.current
-    val density = LocalDensity.current.density
 
     val screenWidth = remember {
-        derivedStateOf { (configuration.screenWidthDp * density).roundToInt() }
+        derivedStateOf { (configuration.screenWidthDp * 2.5f).roundToInt() }
     }
 
     val offsetValue by remember { derivedStateOf { (screenWidth.value / 3.5).dp } }
@@ -173,6 +172,8 @@ fun MainTaskScreen(viewModel: MainScreenViewModel) {
                 drawerState = CustomDrawerState.Closed
             }
         )
+
+        println("OFFSET: $animatedOffset")
 
         val modifierEdit = Modifier
             .offset(x = animatedOffset)
